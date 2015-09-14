@@ -21,6 +21,8 @@
 
 static bool __time24 = false;
 
+voidFuncPtr RTC_callBack = NULL;
+
 void RTCZero::begin(bool timeRep) 
 {
   uint16_t tmp_reg = 0;
@@ -76,6 +78,10 @@ void RTCZero::begin(bool timeRep)
 
 void RTC_Handler(void)
 {
+  if (RTC_callBack != NULL) {
+    RTC_callBack();
+  }
+
   RTC->MODE2.INTFLAG.reg = RTC_MODE2_INTFLAG_ALARM0; // must clear flag at end
 }
 
@@ -91,6 +97,16 @@ void RTCZero::disableAlarm()
   RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = 0x00;
   while (RTCisSyncing())
     ;
+}
+
+void RTCZero::attachInterrupt(voidFuncPtr callback)
+{
+  RTC_callBack = callback;
+}
+
+void RTCZero::detachInterrupt()
+{
+  RTC_callBack = NULL;
 }
 
 /*
