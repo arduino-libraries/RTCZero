@@ -112,6 +112,36 @@ uint8_t RTCZero::getYear()
   return RTC->MODE2.CLOCK.bit.YEAR;
 }
 
+uint8_t RTCZero::getAlarmSeconds()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.SECOND;
+}
+
+uint8_t RTCZero::getAlarmMinutes()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.MINUTE;
+}
+
+uint8_t RTCZero::getAlarmHours()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR;
+}
+
+uint8_t RTCZero::getAlarmDay()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.DAY;
+}
+
+uint8_t RTCZero::getAlarmMonth()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.MONTH;
+}
+
+uint8_t RTCZero::getAlarmYear()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.YEAR;
+}
+
 /*
  * Set Functions
  */
@@ -174,6 +204,67 @@ void RTCZero::setDate(uint8_t day, uint8_t month, uint8_t year)
   setDay(day);
   setMonth(month);
   setYear(year);
+}
+
+void RTCZero::setAlarmSeconds(uint8_t seconds)
+{
+  RTC->MODE2.Mode2Alarm[0].ALARM.bit.SECOND = seconds;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmMinutes(uint8_t minutes)
+{
+  RTC->MODE2.Mode2Alarm[0].ALARM.bit.MINUTE = minutes;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmHours(uint8_t hours)
+{
+  if ((__time24) || (hours < 13)) {
+    RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR = hours;
+  }
+  else {
+    RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR = hours - 12;
+  }
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmTime(uint8_t hours, uint8_t minutes, uint8_t seconds)
+{
+  setAlarmSeconds(seconds);
+  setAlarmMinutes(minutes);
+  setAlarmHours(hours);
+}
+
+void RTCZero::setAlarmDay(uint8_t day)
+{
+  RTC->MODE2.Mode2Alarm[0].ALARM.bit.DAY = day;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmMonth(uint8_t month)
+{
+  RTC->MODE2.Mode2Alarm[0].ALARM.bit.MONTH = month;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmYear(uint8_t year)
+{
+  RTC->MODE2.Mode2Alarm[0].ALARM.bit.YEAR = year;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmDate(uint8_t day, uint8_t month, uint8_t year)
+{
+  setAlarmDay(day);
+  setAlarmMonth(month);
+  setAlarmYear(year);
 }
 
 /*

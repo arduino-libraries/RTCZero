@@ -40,6 +40,14 @@ public:
   uint8_t getMonth();
   uint8_t getYear();
 
+  uint8_t getAlarmSeconds();
+  uint8_t getAlarmMinutes();
+  uint8_t getAlarmHours();
+
+  uint8_t getAlarmDay();
+  uint8_t getAlarmMonth();
+  uint8_t getAlarmYear();
+
   /* Set Functions */
 
   void setSeconds(uint8_t seconds);
@@ -51,6 +59,16 @@ public:
   void setMonth(uint8_t month);
   void setYear(uint8_t year);
   void setDate(uint8_t day, uint8_t month, uint8_t year);
+
+  void setAlarmSeconds(uint8_t seconds);
+  void setAlarmMinutes(uint8_t minutes);
+  void setAlarmHours(uint8_t hours);
+  void setAlarmTime(uint8_t hours, uint8_t minutes, uint8_t seconds);
+
+  void setAlarmDay(uint8_t day);
+  void setAlarmMonth(uint8_t month);
+  void setAlarmYear(uint8_t year);
+  void setAlarmDate(uint8_t day, uint8_t month, uint8_t year);
 
 private:
   void config32kOSC(void);
