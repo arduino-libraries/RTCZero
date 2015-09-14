@@ -61,8 +61,21 @@ void RTCZero::begin(bool timeRep)
   while (RTCisSyncing())
     ;
 
+  NVIC_EnableIRQ(RTC_IRQn); // enable RTC interrupt 
+  NVIC_SetPriority(RTC_IRQn, 0x00);
+
+  RTC->MODE2.INTENSET.reg &= ~RTC_MODE2_INTENSET_ALARM0; // disable alarm interrupt by default
+  
+  while (RTCisSyncing())
+    ;
+
   RTCenable();
   RTCresetRemove();
+}
+
+void RTC_Handler(void)
+{
+  RTC->MODE2.INTFLAG.reg = RTC_MODE2_INTFLAG_ALARM0; // must clear flag at end
 }
 
 /*
