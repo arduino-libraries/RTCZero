@@ -27,8 +27,22 @@
 class RTCZero {
 public:
 
+  enum Alarm_Match: uint8_t
+  {
+    MATCH_OFF          = 0x00,
+    MATCH_SS           = 0x01,
+    MATCH_MMSS         = 0x02,
+    MATCH_HHMMSS       = 0x03,
+    MATCH_DHHMMSS      = 0x04,
+    MATCH_MMDDHHMMSS   = 0x05,
+    MATCH_YYMMDDHHMMSS = 0x06
+  };
+
   RTCZero() {};
   void begin(bool timeRep);
+
+  void enableAlarm(Alarm_Match match);
+  void disableAlarm();
   
   /* Get Functions */
 
