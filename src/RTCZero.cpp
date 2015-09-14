@@ -171,6 +171,7 @@ void RTCZero::setDate(uint8_t day, uint8_t month, uint8_t year)
 void RTCZero::config32kOSC() 
 {
   SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_ONDEMAND |
+                         SYSCTRL_XOSC32K_RUNSTDBY |
                          SYSCTRL_XOSC32K_EN32K |
                          SYSCTRL_XOSC32K_XTALEN |
                          SYSCTRL_XOSC32K_STARTUP(6) |
