@@ -119,7 +119,7 @@ void RTCZero::setMinutes(uint8_t minutes)
 
 void RTCZero::setHours(uint8_t hours)
 {
-  if (__time24) {
+  if ((__time24) || (hours < 13)) {
     RTC->MODE2.CLOCK.bit.HOUR = hours;
   } else {
     RTC->MODE2.CLOCK.bit.HOUR = hours - 12;
