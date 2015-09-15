@@ -29,15 +29,15 @@ typedef void(*voidFuncPtr)(void);
 class RTCZero {
 public:
 
-  enum Alarm_Match: uint8_t
+  enum Alarm_Match: uint8_t // Should we have this enum or just use the identifiers from /component/rtc.h ?
   {
-    MATCH_OFF          = 0x00,
-    MATCH_SS           = 0x01,
-    MATCH_MMSS         = 0x02,
-    MATCH_HHMMSS       = 0x03,
-    MATCH_DHHMMSS      = 0x04,
-    MATCH_MMDDHHMMSS   = 0x05,
-    MATCH_YYMMDDHHMMSS = 0x06
+    MATCH_OFF          = RTC_MODE2_MASK_SEL_OFF_Val,
+    MATCH_SS           = RTC_MODE2_MASK_SEL_SS_Val,
+    MATCH_MMSS         = RTC_MODE2_MASK_SEL_MMSS_Val,
+    MATCH_HHMMSS       = RTC_MODE2_MASK_SEL_HHMMSS_Val,
+    MATCH_DHHMMSS      = RTC_MODE2_MASK_SEL_DDHHMMSS_Val,
+    MATCH_MMDDHHMMSS   = RTC_MODE2_MASK_SEL_MMDDHHMMSS_Val,
+    MATCH_YYMMDDHHMMSS = RTC_MODE2_MASK_SEL_YYMMDDHHMMSS_Val
   };
 
   RTCZero() {};
