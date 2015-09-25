@@ -21,6 +21,8 @@
 
 static bool __time24 = false;
 
+voidFuncPtr RTC_callBack = NULL;
+
 void RTCZero::begin(bool timeRep) 
 {
   uint16_t tmp_reg = 0;
@@ -61,8 +63,50 @@ void RTCZero::begin(bool timeRep)
   while (RTCisSyncing())
     ;
 
+  NVIC_EnableIRQ(RTC_IRQn); // enable RTC interrupt 
+  NVIC_SetPriority(RTC_IRQn, 0x00);
+
+  RTC->MODE2.INTENSET.reg |= RTC_MODE2_INTENSET_ALARM0; // enable alarm interrupt
+  RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = MATCH_OFF; // default alarm match is off (disabled)
+  
+  while (RTCisSyncing())
+    ;
+
   RTCenable();
   RTCresetRemove();
+}
+
+void RTC_Handler(void)
+{
+  if (RTC_callBack != NULL) {
+    RTC_callBack();
+  }
+
+  RTC->MODE2.INTFLAG.reg = RTC_MODE2_INTFLAG_ALARM0; // must clear flag at end
+}
+
+void RTCZero::enableAlarm(Alarm_Match match)
+{
+  RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = match;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::disableAlarm()
+{
+  RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = 0x00;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::attachInterrupt(voidFuncPtr callback)
+{
+  RTC_callBack = callback;
+}
+
+void RTCZero::detachInterrupt()
+{
+  RTC_callBack = NULL;
 }
 
 /*
@@ -99,6 +143,36 @@ uint8_t RTCZero::getYear()
   return RTC->MODE2.CLOCK.bit.YEAR;
 }
 
+uint8_t RTCZero::getAlarmSeconds()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.SECOND;
+}
+
+uint8_t RTCZero::getAlarmMinutes()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.MINUTE;
+}
+
+uint8_t RTCZero::getAlarmHours()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR;
+}
+
+uint8_t RTCZero::getAlarmDay()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.DAY;
+}
+
+uint8_t RTCZero::getAlarmMonth()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.MONTH;
+}
+
+uint8_t RTCZero::getAlarmYear()
+{
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.YEAR;
+}
+
 /*
  * Set Functions
  */
@@ -119,7 +193,7 @@ void RTCZero::setMinutes(uint8_t minutes)
 
 void RTCZero::setHours(uint8_t hours)
 {
-  if (__time24) {
+  if ((__time24) || (hours < 13)) {
     RTC->MODE2.CLOCK.bit.HOUR = hours;
   } else {
     RTC->MODE2.CLOCK.bit.HOUR = hours - 12;
@@ -163,6 +237,67 @@ void RTCZero::setDate(uint8_t day, uint8_t month, uint8_t year)
   setYear(year);
 }
 
+void RTCZero::setAlarmSeconds(uint8_t seconds)
+{
+  RTC->MODE2.Mode2Alarm[0].ALARM.bit.SECOND = seconds;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmMinutes(uint8_t minutes)
+{
+  RTC->MODE2.Mode2Alarm[0].ALARM.bit.MINUTE = minutes;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmHours(uint8_t hours)
+{
+  if ((__time24) || (hours < 13)) {
+    RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR = hours;
+  }
+  else {
+    RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR = hours - 12;
+  }
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmTime(uint8_t hours, uint8_t minutes, uint8_t seconds)
+{
+  setAlarmSeconds(seconds);
+  setAlarmMinutes(minutes);
+  setAlarmHours(hours);
+}
+
+void RTCZero::setAlarmDay(uint8_t day)
+{
+  RTC->MODE2.Mode2Alarm[0].ALARM.bit.DAY = day;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmMonth(uint8_t month)
+{
+  RTC->MODE2.Mode2Alarm[0].ALARM.bit.MONTH = month;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmYear(uint8_t year)
+{
+  RTC->MODE2.Mode2Alarm[0].ALARM.bit.YEAR = year;
+  while (RTCisSyncing())
+    ;
+}
+
+void RTCZero::setAlarmDate(uint8_t day, uint8_t month, uint8_t year)
+{
+  setAlarmDay(day);
+  setAlarmMonth(month);
+  setAlarmYear(year);
+}
+
 /*
  * Private Utility Functions
  */
@@ -171,6 +306,7 @@ void RTCZero::setDate(uint8_t day, uint8_t month, uint8_t year)
 void RTCZero::config32kOSC() 
 {
   SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_ONDEMAND |
+                         SYSCTRL_XOSC32K_RUNSTDBY |
                          SYSCTRL_XOSC32K_EN32K |
                          SYSCTRL_XOSC32K_XTALEN |
                          SYSCTRL_XOSC32K_STARTUP(6) |
