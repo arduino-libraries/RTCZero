@@ -7,6 +7,8 @@
 
  http://arduino.cc/en/Tutorial/SimpleRTC
 
+  created by Arturo Guadalupi <a.guadalupi@arduino.cc>
+  15 Jun 2015
 */
 
 #include <RTCZero.h>
