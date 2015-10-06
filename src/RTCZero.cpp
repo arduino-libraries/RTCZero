@@ -24,16 +24,19 @@
 
 static const uint8_t daysInMonth[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
 
-static bool __time24 = false;
-
 voidFuncPtr RTC_callBack = NULL;
+
+RTCZero::RTCZero()
+{
+  _time24 = false;
+}
 
 void RTCZero::begin(bool timeRep) 
 {
   uint16_t tmp_reg = 0;
   
   if (timeRep)
-    __time24 = true; // 24h representation chosen
+    _time24 = true; // 24h representation chosen
   
   PM->APBAMASK.reg |= PM_APBAMASK_RTC; // turn on digital interface clock
   config32kOSC();
@@ -58,7 +61,7 @@ void RTCZero::begin(bool timeRep)
   tmp_reg &= ~RTC_MODE2_CTRL_MATCHCLR; // disable clear on match
   
   //According to the datasheet RTC_MODE2_CTRL_CLKREP = 0 for 24h
-  if (timeRep)
+  if (_time24)
     tmp_reg &= ~RTC_MODE2_CTRL_CLKREP; // 24h time representation
   else
     tmp_reg |= RTC_MODE2_CTRL_CLKREP; // 12h time representation
@@ -80,9 +83,6 @@ void RTCZero::begin(bool timeRep)
 
   RTCenable();
   RTCresetRemove();
-
-  // The clock does not seem to sync until the first tick
-  delay(1000);
 }
 
 void RTC_Handler(void)
@@ -136,7 +136,7 @@ uint8_t RTCZero::getHours()
 {
   uint8_t hours = RTC->MODE2.CLOCK.bit.HOUR;
 
-  if (!__time24) {
+  if (!_time24) {
     hours &= ~RTC_MODE2_CLOCK_HOUR_PM_Val;
   }
 
@@ -147,7 +147,7 @@ uint8_t RTCZero::getAM_PM()
 {
   uint8_t result = RTC_AM_PM::RTC_AM;
 
-  if (__time24) {
+  if (_time24) {
     if (RTC->MODE2.CLOCK.bit.HOUR > 11) {
       result = RTC_AM_PM::RTC_PM;
     }
@@ -190,7 +190,7 @@ uint8_t RTCZero::getAlarmHours()
 {
   uint8_t hours = RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR;
 
-  if (!__time24) {
+  if (!_time24) {
     hours &= ~RTC_MODE2_CLOCK_HOUR_PM_Val;
   }
 
@@ -201,7 +201,7 @@ uint8_t RTCZero::getAlarmAM_PM()
 {
   uint8_t result = RTC_AM_PM::RTC_AM;
 
-  if (__time24) {
+  if (_time24) {
     if (RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR > 11) {
       result = RTC_AM_PM::RTC_PM;
     }
@@ -250,7 +250,7 @@ void RTCZero::setMinutes(uint8_t minutes)
 
 void RTCZero::setHours(uint8_t hours, uint8_t am_pm)
 {
-  if (!__time24)
+  if (!_time24)
   {
     if (hours > 12) {
       hours -= 12;
@@ -317,7 +317,7 @@ void RTCZero::setAlarmMinutes(uint8_t minutes)
 
 void RTCZero::setAlarmHours(uint8_t hours, uint8_t am_pm)
 {
-  if (!__time24)
+  if (!_time24)
   {
     if (hours > 12) {
       hours -= 12;
@@ -376,6 +376,7 @@ uint32_t RTCZero::getEpoch()
 uint32_t RTCZero::getY2kEpoch()
 {
   uint16_t days = RTC->MODE2.CLOCK.bit.DAY;
+  days = days > 0 ? days : 1;
   uint8_t months = RTC->MODE2.CLOCK.bit.MONTH;
   uint16_t years = RTC->MODE2.CLOCK.bit.YEAR;
 
@@ -386,12 +387,11 @@ uint32_t RTCZero::getY2kEpoch()
   if ((months > 2) && (years % 4 == 0)) {
     ++days;
   }
-
   days += 365 * years + (years + 3) / 4 - 1;
-
+  
   uint8_t hours = RTC->MODE2.CLOCK.bit.HOUR;
 
-  if (!__time24) {
+  if (!_time24) {
     uint8_t pm = hours & RTC_MODE2_CLOCK_HOUR_PM_Val;
     hours &= ~RTC_MODE2_CLOCK_HOUR_PM_Val;
 
