@@ -17,7 +17,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#pragma once
+#ifndef RTC_ZERO_H
+#define RTC_ZERO_H
 
 #define H24 1
 #define H12 0
@@ -31,13 +32,13 @@ public:
 
   enum Alarm_Match: uint8_t // Should we have this enum or just use the identifiers from /component/rtc.h ?
   {
-    MATCH_OFF          = RTC_MODE2_MASK_SEL_OFF_Val,
-    MATCH_SS           = RTC_MODE2_MASK_SEL_SS_Val,
-    MATCH_MMSS         = RTC_MODE2_MASK_SEL_MMSS_Val,
-    MATCH_HHMMSS       = RTC_MODE2_MASK_SEL_HHMMSS_Val,
-    MATCH_DHHMMSS      = RTC_MODE2_MASK_SEL_DDHHMMSS_Val,
-    MATCH_MMDDHHMMSS   = RTC_MODE2_MASK_SEL_MMDDHHMMSS_Val,
-    MATCH_YYMMDDHHMMSS = RTC_MODE2_MASK_SEL_YYMMDDHHMMSS_Val
+    MATCH_OFF          = RTC_MODE2_MASK_SEL_OFF_Val,          // Never
+    MATCH_SS           = RTC_MODE2_MASK_SEL_SS_Val,           // Every Minute
+    MATCH_MMSS         = RTC_MODE2_MASK_SEL_MMSS_Val,         // Every Hour
+    MATCH_HHMMSS       = RTC_MODE2_MASK_SEL_HHMMSS_Val,       // Every Day
+    MATCH_DHHMMSS      = RTC_MODE2_MASK_SEL_DDHHMMSS_Val,     // Every Month
+    MATCH_MMDDHHMMSS   = RTC_MODE2_MASK_SEL_MMDDHHMMSS_Val,   // Every Year
+    MATCH_YYMMDDHHMMSS = RTC_MODE2_MASK_SEL_YYMMDDHHMMSS_Val  // Once, on a specific date and a specific time
   };
 
   RTCZero() {};
@@ -89,6 +90,13 @@ public:
   void setAlarmYear(uint8_t year);
   void setAlarmDate(uint8_t day, uint8_t month, uint8_t year);
 
+  /* Epoch Functions */
+
+  uint32_t getEpoch();
+  uint32_t getY2kEpoch();
+  void setEpoch(uint32_t ts);
+  void setY2kEpoch(uint32_t ts);
+
 private:
   void config32kOSC(void);
   bool RTCisSyncing(void);
@@ -97,3 +105,5 @@ private:
   void RTCreset();
   void RTCresetRemove();
 };
+
+#endif // RTC_ZERO_H

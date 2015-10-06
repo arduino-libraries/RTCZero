@@ -19,6 +19,11 @@
  
 #include "RTCZero.h"
 
+#define EPOCH_TIME_OFF 946684800  // This is 2000-jan-01 00:00:00 in epoch time
+#define SECONDS_PER_DAY 86400L
+
+static const uint8_t daysInMonth[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+
 static bool __time24 = false;
 
 voidFuncPtr RTC_callBack = NULL;
@@ -74,6 +79,9 @@ void RTCZero::begin(bool timeRep)
 
   RTCenable();
   RTCresetRemove();
+
+  // The clock does not seem to sync until the first tick
+  delay(1000);
 }
 
 void RTC_Handler(void)
@@ -298,6 +306,75 @@ void RTCZero::setAlarmDate(uint8_t day, uint8_t month, uint8_t year)
   setAlarmYear(year);
 }
 
+uint32_t RTCZero::getEpoch()
+{
+  return getY2kEpoch() + EPOCH_TIME_OFF;
+}
+
+uint32_t RTCZero::getY2kEpoch()
+{
+  uint16_t days = RTC->MODE2.CLOCK.bit.DAY;
+  uint8_t months = RTC->MODE2.CLOCK.bit.MONTH;
+  uint16_t years = RTC->MODE2.CLOCK.bit.YEAR;
+
+  for (uint8_t i = 1; i < months; ++i) {
+    days += daysInMonth[i - 1];
+  }
+
+  if ((months > 2) && (years % 4 == 0)) {
+    ++days;
+  }
+
+  days += 365 * years + (years + 3) / 4 - 1;
+
+  return ((days * 24 + RTC->MODE2.CLOCK.bit.HOUR) * 60 +
+    RTC->MODE2.CLOCK.bit.MINUTE) * 60 + RTC->MODE2.CLOCK.bit.SECOND;
+}
+
+void RTCZero::setEpoch(uint32_t ts)
+{
+  setY2kEpoch(ts - EPOCH_TIME_OFF);
+}
+
+void RTCZero::setY2kEpoch(uint32_t ts)
+{
+  RTC->MODE2.CLOCK.bit.SECOND = ts % 60;
+  ts /= 60;
+  RTC->MODE2.CLOCK.bit.MINUTE = ts % 60;
+  ts /= 60;
+  RTC->MODE2.CLOCK.bit.HOUR = ts % 24;
+
+  uint16_t days = ts / 24;
+  uint8_t months;
+  uint8_t years;
+
+  uint8_t leap;
+
+  // Calculate years
+  for (years = 0; ; ++years) {
+    leap = years % 4 == 0;
+    if (days < 365 + leap)
+      break;
+    days -= 365 + leap;
+  }
+
+  // Calculate months
+  for (months = 1; ; ++months) {
+    uint8_t daysPerMonth = daysInMonth[months - 1];
+    if (leap && months == 2)
+      ++daysPerMonth;
+    if (days < daysPerMonth)
+      break;
+    days -= daysPerMonth;
+  }
+
+  RTC->MODE2.CLOCK.bit.YEAR = years;
+  RTC->MODE2.CLOCK.bit.MONTH = months;
+  RTC->MODE2.CLOCK.bit.DAY = days + 1;
+  while (RTCisSyncing())
+    ;
+}
+
 /*
  * Private Utility Functions
  */
@@ -346,4 +423,3 @@ void RTCZero::RTCresetRemove()
   while (RTCisSyncing())
     ;
 }
-
