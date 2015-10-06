@@ -30,6 +30,12 @@ typedef void(*voidFuncPtr)(void);
 class RTCZero {
 public:
 
+  enum RTC_AM_PM : uint8_t
+  {
+    RTC_AM = 0,
+    RTC_PM = 1
+  };
+
   enum Alarm_Match: uint8_t // Should we have this enum or just use the identifiers from /component/rtc.h ?
   {
     MATCH_OFF          = RTC_MODE2_MASK_SEL_OFF_Val,          // Never
@@ -55,14 +61,16 @@ public:
   uint8_t getSeconds();
   uint8_t getMinutes();
   uint8_t getHours();
+  uint8_t getAM_PM();
   
   uint8_t getDay();
   uint8_t getMonth();
   uint8_t getYear();
-
+  
   uint8_t getAlarmSeconds();
   uint8_t getAlarmMinutes();
   uint8_t getAlarmHours();
+  uint8_t getAlarmAM_PM();
 
   uint8_t getAlarmDay();
   uint8_t getAlarmMonth();
@@ -72,8 +80,8 @@ public:
 
   void setSeconds(uint8_t seconds);
   void setMinutes(uint8_t minutes);
-  void setHours(uint8_t hours);
-  void setTime(uint8_t hours, uint8_t minutes, uint8_t seconds);
+  void setHours(uint8_t hours, uint8_t am_pm = RTC_AM);
+  void setTime(uint8_t hours, uint8_t minutes, uint8_t seconds, uint8_t am_pm = RTC_AM);
 
   void setDay(uint8_t day);
   void setMonth(uint8_t month);
@@ -82,8 +90,8 @@ public:
 
   void setAlarmSeconds(uint8_t seconds);
   void setAlarmMinutes(uint8_t minutes);
-  void setAlarmHours(uint8_t hours);
-  void setAlarmTime(uint8_t hours, uint8_t minutes, uint8_t seconds);
+  void setAlarmHours(uint8_t hours, uint8_t am_pm = RTC_AM);
+  void setAlarmTime(uint8_t hours, uint8_t minutes, uint8_t seconds, uint8_t am_pm = RTC_AM);
 
   void setAlarmDay(uint8_t day);
   void setAlarmMonth(uint8_t month);
