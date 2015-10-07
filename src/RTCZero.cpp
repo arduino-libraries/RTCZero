@@ -408,7 +408,12 @@ uint32_t RTCZero::getY2kEpoch()
 
 void RTCZero::setEpoch(uint32_t ts)
 {
-  setY2kEpoch(ts - EPOCH_TIME_OFF);
+  if (ts < EPOCH_TIME_OFF) {
+    setY2kEpoch(0);
+  }
+  else {
+    setY2kEpoch(ts - EPOCH_TIME_OFF);
+  }
 }
 
 void RTCZero::setY2kEpoch(uint32_t ts)
