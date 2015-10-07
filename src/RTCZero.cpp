@@ -107,7 +107,7 @@ void RTCZero::disableAlarm()
     ;
 }
 
-void RTCZero::attachInterrupt(RTC_voidFuncPtr callback)
+void RTCZero::attachInterrupt(voidFuncPtr callback)
 {
   RTC_callBack = callback;
 }
