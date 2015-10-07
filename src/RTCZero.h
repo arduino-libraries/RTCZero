@@ -25,7 +25,7 @@
 
 #include "Arduino.h"
 
-typedef void(*voidFuncPtr)(void);
+typedef void(*RTC_voidFuncPtr)(void);
 
 class RTCZero {
 public:
@@ -53,7 +53,7 @@ public:
   void enableAlarm(Alarm_Match match);
   void disableAlarm();
 
-  void attachInterrupt(voidFuncPtr callback);
+  void attachInterrupt(RTC_voidFuncPtr callback);
   void detachInterrupt();
   
   /* Get Functions */
