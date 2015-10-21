@@ -19,16 +19,11 @@
  
 #include "RTCZero.h"
 
-static bool __time24 = false;
-
 voidFuncPtr RTC_callBack = NULL;
 
-void RTCZero::begin(bool timeRep) 
+void RTCZero::begin() 
 {
   uint16_t tmp_reg = 0;
-  
-  if (timeRep)
-    __time24 = true; // 24h representation chosen
   
   PM->APBAMASK.reg |= PM_APBAMASK_RTC; // turn on digital interface clock
   config32kOSC();
@@ -51,11 +46,7 @@ void RTCZero::begin(bool timeRep)
   tmp_reg |= RTC_MODE2_CTRL_MODE_CLOCK; // set clock operating mode
   tmp_reg |= RTC_MODE2_CTRL_PRESCALER_DIV1024; // set prescaler to 1024 for MODE2
   tmp_reg &= ~RTC_MODE2_CTRL_MATCHCLR; // disable clear on match
-  
-  if (timeRep)
-    tmp_reg |= RTC_MODE2_CTRL_CLKREP; // 24h time representation
-  else
-    tmp_reg &= ~RTC_MODE2_CTRL_CLKREP; // 12h time representation
+  tmp_reg |= RTC_MODE2_CTRL_CLKREP; // 24h time representation
 
   RTC->MODE2.READREQ.reg &= ~RTC_READREQ_RCONT; // disable continuously mode
 
@@ -193,11 +184,7 @@ void RTCZero::setMinutes(uint8_t minutes)
 
 void RTCZero::setHours(uint8_t hours)
 {
-  if ((__time24) || (hours < 13)) {
-    RTC->MODE2.CLOCK.bit.HOUR = hours;
-  } else {
-    RTC->MODE2.CLOCK.bit.HOUR = hours - 12;
-  }
+  RTC->MODE2.CLOCK.bit.HOUR = hours;
   while (RTCisSyncing())
     ;
 }
@@ -253,12 +240,7 @@ void RTCZero::setAlarmMinutes(uint8_t minutes)
 
 void RTCZero::setAlarmHours(uint8_t hours)
 {
-  if ((__time24) || (hours < 13)) {
-    RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR = hours;
-  }
-  else {
-    RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR = hours - 12;
-  }
+  RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR = hours;
   while (RTCisSyncing())
     ;
 }
@@ -346,4 +328,3 @@ void RTCZero::RTCresetRemove()
   while (RTCisSyncing())
     ;
 }
-

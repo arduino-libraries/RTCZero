@@ -50,5 +50,3 @@ disableAlarm 		KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################
-H24 						LITERAL1
-H12 						LITERAL1

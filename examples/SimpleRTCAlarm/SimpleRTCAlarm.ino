@@ -9,6 +9,9 @@
 
   created by Arturo Guadalupi <a.guadalupi@arduino.cc>
   25 Sept 2015
+  
+  modified
+  21 Oct 2015
 */
 
 #include <RTCZero.h>
@@ -19,7 +22,7 @@ RTCZero rtc;
 /* Change these values to set the current initial time */
 const uint8_t seconds = 0;
 const uint8_t minutes = 0;
-const uint8_t hours = 17;
+const uint8_t hours = 16;
 
 /* Change these values to set the current initial date */
 const uint8_t day = 25;
@@ -30,7 +33,7 @@ void setup()
 {
   Serial.begin(9600);
 
-  rtc.begin(H24); // initialize RTC 24H format. The dual option is H12
+  rtc.begin(); // initialize RTC 24H format
 
   rtc.setTime(hours, minutes, seconds);
   rtc.setDate(day, month, year);
