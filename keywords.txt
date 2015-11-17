@@ -47,6 +47,8 @@ setAlarmTime		KEYWORD2
 enableAlarm 		KEYWORD2
 disableAlarm 		KEYWORD2
 
+standbyMode			KEYWORD2
+
 #######################################
 # Constants (LITERAL1)
 #######################################

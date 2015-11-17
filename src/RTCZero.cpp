@@ -100,6 +100,12 @@ void RTCZero::detachInterrupt()
   RTC_callBack = NULL;
 }
 
+void RTCZero::standbyMode()
+{
+	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+  __WFI();
+}
+
 /*
  * Get Functions
  */

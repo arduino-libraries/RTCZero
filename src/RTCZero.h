@@ -49,6 +49,8 @@ public:
   void attachInterrupt(voidFuncPtr callback);
   void detachInterrupt();
   
+  void standbyMode();
+  
   /* Get Functions */
 
   uint8_t getSeconds();
