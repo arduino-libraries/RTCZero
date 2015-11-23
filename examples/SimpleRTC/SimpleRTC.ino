@@ -7,6 +7,11 @@
 
  http://arduino.cc/en/Tutorial/SimpleRTC
 
+  created by Arturo Guadalupi <a.guadalupi@arduino.cc>
+  15 Jun 2015
+
+  modified
+  21 Oct 2015
 */
 
 #include <RTCZero.h>
@@ -28,7 +33,7 @@ void setup()
 {
   Serial.begin(9600);
   
-  rtc.begin(H24); // initialize RTC 24H format. The dual option is H12
+  rtc.begin(); // initialize RTC
   
   // Set the time
   rtc.setHours(hours);

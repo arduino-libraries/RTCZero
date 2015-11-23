@@ -25,17 +25,9 @@ static const uint8_t daysInMonth[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
 
 voidFuncPtr RTC_callBack = NULL;
 
-RTCZero::RTCZero()
-{
-  _time24 = false;
-}
-
-void RTCZero::begin(bool timeRep) 
+void RTCZero::begin() 
 {
   uint16_t tmp_reg = 0;
-  
-  if (timeRep)
-    _time24 = true; // 24h representation chosen
   
   PM->APBAMASK.reg |= PM_APBAMASK_RTC; // turn on digital interface clock
   config32kOSC();
@@ -60,10 +52,7 @@ void RTCZero::begin(bool timeRep)
   tmp_reg &= ~RTC_MODE2_CTRL_MATCHCLR; // disable clear on match
   
   //According to the datasheet RTC_MODE2_CTRL_CLKREP = 0 for 24h
-  if (_time24)
-    tmp_reg &= ~RTC_MODE2_CTRL_CLKREP; // 24h time representation
-  else
-    tmp_reg |= RTC_MODE2_CTRL_CLKREP; // 12h time representation
+  tmp_reg &= ~RTC_MODE2_CTRL_CLKREP; // 24h time representation
 
   RTC->MODE2.READREQ.reg &= ~RTC_READREQ_RCONT; // disable continuously mode
 
@@ -117,6 +106,12 @@ void RTCZero::detachInterrupt()
   RTC_callBack = NULL;
 }
 
+void RTCZero::standbyMode()
+{
+	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+  __WFI();
+}
+
 /*
  * Get Functions
  */
@@ -135,29 +130,7 @@ uint8_t RTCZero::getHours()
 {
   uint8_t hours = RTC->MODE2.CLOCK.bit.HOUR;
 
-  if (!_time24) {
-    hours &= ~RTC_MODE2_CLOCK_HOUR_PM_Val;
-  }
-
   return hours;
-}
-
-uint8_t RTCZero::getAM_PM()
-{
-  uint8_t result = RTC_AM_PM::RTC_AM;
-
-  if (_time24) {
-    if (RTC->MODE2.CLOCK.bit.HOUR > 11) {
-      result = RTC_AM_PM::RTC_PM;
-    }
-  }
-  else {
-    if (RTC->MODE2.CLOCK.bit.HOUR & RTC_MODE2_CLOCK_HOUR_PM_Val) {
-      result = RTC_AM_PM::RTC_PM;
-    }
-  }
-
-  return result;
 }
 
 uint8_t RTCZero::getDay()
@@ -189,29 +162,7 @@ uint8_t RTCZero::getAlarmHours()
 {
   uint8_t hours = RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR;
 
-  if (!_time24) {
-    hours &= ~RTC_MODE2_CLOCK_HOUR_PM_Val;
-  }
-
   return hours;
-}
-
-uint8_t RTCZero::getAlarmAM_PM()
-{
-  uint8_t result = RTC_AM_PM::RTC_AM;
-
-  if (_time24) {
-    if (RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR > 11) {
-      result = RTC_AM_PM::RTC_PM;
-    }
-  }
-  else {
-    if (RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR & RTC_MODE2_CLOCK_HOUR_PM_Val) {
-      result = RTC_AM_PM::RTC_PM;
-    }
-  }
-
-  return result;
 }
 
 uint8_t RTCZero::getAlarmDay()
@@ -247,29 +198,18 @@ void RTCZero::setMinutes(uint8_t minutes)
     ;
 }
 
-void RTCZero::setHours(uint8_t hours, uint8_t am_pm)
+void RTCZero::setHours(uint8_t hours)
 {
-  if (!_time24)
-  {
-    if (hours > 12) {
-      hours -= 12;
-      hours |= RTC_MODE2_CLOCK_HOUR_PM_Val;
-    }
-    else {
-      hours |= (am_pm << 4);
-    }
-  }
-
   RTC->MODE2.CLOCK.bit.HOUR = hours;
   while (RTCisSyncing())
     ;
 }
 
-void RTCZero::setTime(uint8_t hours, uint8_t minutes, uint8_t seconds, uint8_t am_pm)
+void RTCZero::setTime(uint8_t hours, uint8_t minutes, uint8_t seconds)
 {
   setSeconds(seconds);
   setMinutes(minutes);
-  setHours(hours, am_pm);
+  setHours(hours);
 }
 
 void RTCZero::setDay(uint8_t day)
@@ -314,29 +254,18 @@ void RTCZero::setAlarmMinutes(uint8_t minutes)
     ;
 }
 
-void RTCZero::setAlarmHours(uint8_t hours, uint8_t am_pm)
+void RTCZero::setAlarmHours(uint8_t hours)
 {
-  if (!_time24)
-  {
-    if (hours > 12) {
-      hours -= 12;
-      hours |= RTC_MODE2_CLOCK_HOUR_PM_Val;
-    }
-    else {
-      hours |= (am_pm << 4);
-    }
-  }
-
   RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR = hours;
   while (RTCisSyncing())
     ;
 }
 
-void RTCZero::setAlarmTime(uint8_t hours, uint8_t minutes, uint8_t seconds, uint8_t am_pm)
+void RTCZero::setAlarmTime(uint8_t hours, uint8_t minutes, uint8_t seconds)
 {
   setAlarmSeconds(seconds);
   setAlarmMinutes(minutes);
-  setAlarmHours(hours, am_pm);
+  setAlarmHours(hours);
 }
 
 void RTCZero::setAlarmDay(uint8_t day)
@@ -389,18 +318,6 @@ uint32_t RTCZero::getY2kEpoch()
   days += 365 * years + (years + 3) / 4 - 1;
   
   uint8_t hours = RTC->MODE2.CLOCK.bit.HOUR;
-
-  if (!_time24) {
-    uint8_t pm = hours & RTC_MODE2_CLOCK_HOUR_PM_Val;
-    hours &= ~RTC_MODE2_CLOCK_HOUR_PM_Val;
-
-    if ((!pm) && (hours == 12)) {
-      hours = 0;
-    }
-    else if ((pm) && (hours != 12)) {
-      hours += 12;
-    }
-  }
 
   return ((days * 24 + hours) * 60 +
     RTC->MODE2.CLOCK.bit.MINUTE) * 60 + RTC->MODE2.CLOCK.bit.SECOND;
