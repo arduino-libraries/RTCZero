@@ -128,9 +128,7 @@ uint8_t RTCZero::getMinutes()
 
 uint8_t RTCZero::getHours()
 {
-  uint8_t hours = RTC->MODE2.CLOCK.bit.HOUR;
-
-  return hours;
+  return RTC->MODE2.CLOCK.bit.HOUR;
 }
 
 uint8_t RTCZero::getDay()
@@ -160,9 +158,7 @@ uint8_t RTCZero::getAlarmMinutes()
 
 uint8_t RTCZero::getAlarmHours()
 {
-  uint8_t hours = RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR;
-
-  return hours;
+  return RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR;
 }
 
 uint8_t RTCZero::getAlarmDay()

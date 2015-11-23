@@ -20,9 +20,6 @@
 #ifndef RTC_ZERO_H
 #define RTC_ZERO_H
 
-#define H24 1
-#define H12 0
-
 #include "Arduino.h"
 
 typedef void(*voidFuncPtr)(void);
