@@ -24,18 +24,6 @@
 
 typedef void(*voidFuncPtr)(void);
 
-typedef struct ALARMS{
-	uint8_t seconds;
-	uint8_t minutes;
-	uint8_t hours;
-	uint8_t day;
-	uint8_t month;
-	uint8_t year;
-	uint8_t typeOfMatch;
-	voidFuncPtr thisCallback;  
-	struct ALARMS *nextAlarmPtr;
-} alarms;
-	
 class RTCZero {
 public:
 
@@ -50,10 +38,6 @@ public:
     MATCH_YYMMDDHHMMSS = RTC_MODE2_MASK_SEL_YYMMDDHHMMSS_Val  // Once, on a specific date and a specific time
   };
 
- 	alarms *_alarmsStartPtr, *_alarmsEndPtr;
- 	
- 	bool isFirstAlarm;
- 
   RTCZero() {};
   void begin();
 
@@ -106,9 +90,7 @@ public:
   void setAlarmMonth(uint8_t month);
   void setAlarmYear(uint8_t year);
   void setAlarmDate(uint8_t day, uint8_t month, uint8_t year);
-  
-  void addAlarm(uint8_t hours, uint8_t minutes, uint8_t seconds, uint8_t day, uint8_t month, uint8_t year, uint8_t typeOfMatch, voidFuncPtr callback);
-  void updateAlarms(void);
+
   /* Epoch Functions */
 
   uint32_t getEpoch();
@@ -123,9 +105,6 @@ private:
   void RTCenable();
   void RTCreset();
   void RTCresetRemove();
-  
-  alarms* insertAlarm (uint8_t hours, uint8_t minutes, uint8_t seconds, uint8_t day, uint8_t month, uint8_t year, uint8_t typeOfMatch, voidFuncPtr callback);
-  void destroyAlarm(void);
 };
 
 #endif // RTC_ZERO_H

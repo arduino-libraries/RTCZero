@@ -54,9 +54,6 @@ disableAlarm 		KEYWORD2
 
 standbyMode			KEYWORD2
 
-addAlarm				KEYWORD2
-updateAlarms		KEYWORD2
-
 #######################################
 # Constants (LITERAL1)
 #######################################

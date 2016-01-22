@@ -72,9 +72,6 @@ void RTCZero::begin()
 
   RTCenable();
   RTCresetRemove();
-  
-  _alarmsStartPtr = NULL;
-  isFirstAlarm = true;
 }
 
 void RTC_Handler(void)
@@ -345,33 +342,11 @@ void RTCZero::setY2kEpoch(uint32_t ts)
   setEpoch(ts + EPOCH_TIME_OFF);
 }
 
-
-void RTCZero::addAlarm(uint8_t hours, uint8_t minutes, uint8_t seconds, uint8_t day, uint8_t month, uint8_t year, uint8_t typeOfMatch, voidFuncPtr callback){
-	_alarmsEndPtr = insertAlarm ( hours, minutes, seconds, day, month, year, typeOfMatch, callback);
-}
-
-void RTCZero::updateAlarms(void){
-	if(_alarmsStartPtr != NULL){
- 		setAlarmTime(_alarmsStartPtr->hours, _alarmsStartPtr->minutes, _alarmsStartPtr->seconds);
-  	setAlarmDate(_alarmsStartPtr->day, _alarmsStartPtr->month, _alarmsStartPtr->year);
-  	enableAlarm((Alarm_Match) _alarmsStartPtr->typeOfMatch);
-  	attachInterrupt(_alarmsStartPtr->thisCallback);
- 	}
- 	else{
- 	  setAlarmTime(0, 0, 0);
-  	setAlarmDate(0, 0, 0);
-  	enableAlarm(MATCH_OFF);
- 	}
- 	
- 	destroyAlarm();
-}
-
 /*
  * Private Utility Functions
  */
 
 /* Configure the 32768Hz Oscillator */
-
 void RTCZero::config32kOSC() 
 {
   SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_ONDEMAND |
@@ -414,53 +389,4 @@ void RTCZero::RTCresetRemove()
   RTC->MODE2.CTRL.reg &= ~RTC_MODE2_CTRL_SWRST; // software reset remove
   while (RTCisSyncing())
     ;
-}
-
-alarms* RTCZero::insertAlarm (uint8_t hours, uint8_t minutes, uint8_t seconds, uint8_t day, uint8_t month, uint8_t year, uint8_t typeOfMatch, voidFuncPtr callback){
-	
-	alarms *currentPtr, *newPtr;
-
-  currentPtr = _alarmsStartPtr;
-
-	if(isFirstAlarm){
-	  _alarmsStartPtr = (alarms*) malloc(sizeof (alarms));
-  	_alarmsStartPtr->hours = hours;
-  	_alarmsStartPtr->minutes = minutes;
-  	_alarmsStartPtr->seconds = seconds;
-  	_alarmsStartPtr->day = day;
-  	_alarmsStartPtr->month = month;
-  	_alarmsStartPtr->year = year;
-  	_alarmsStartPtr->typeOfMatch = (Alarm_Match) typeOfMatch;
-  	_alarmsStartPtr->thisCallback = callback;
-  	_alarmsStartPtr->nextAlarmPtr = NULL;
-  	isFirstAlarm = false;
-	}
-	else{
-  	while (currentPtr->nextAlarmPtr != NULL){
-  		currentPtr = currentPtr->nextAlarmPtr;
-  	}
-
-  	newPtr = (alarms*) malloc(sizeof (alarms));
-  	newPtr->hours = hours;
-  	newPtr->minutes = minutes;
-  	newPtr->seconds = seconds;
-  	newPtr->day = day;
-  	newPtr->month = month;
-  	newPtr->year = year;
-  	newPtr->typeOfMatch = typeOfMatch;
-  	newPtr->thisCallback = callback;
-  	newPtr->nextAlarmPtr = NULL;
-  }
-  currentPtr->nextAlarmPtr = newPtr;
-	
-  return newPtr;
-}
-
-void RTCZero::destroyAlarm(void){
-	alarms *currentPtr;
-	
-	currentPtr = _alarmsStartPtr;
-	_alarmsStartPtr = currentPtr->nextAlarmPtr;
-	free(currentPtr);
-	 
 }
