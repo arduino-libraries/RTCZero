@@ -1,6 +1,6 @@
 = RTC Library for Arduino =
 
-The RTC library enables an Arduino Zero board to take control of the internal RTC.
+The RTC library enables an Arduino Zero or MKR1000 board to take control of the internal RTC.
 
 For more information about this library please visit us at
 http://arduino.cc/en/Reference/RTC
