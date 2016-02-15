@@ -121,31 +121,37 @@ void RTCZero::standbyMode()
 
 uint8_t RTCZero::getSeconds()
 {
+  RTCreadRequest();
   return RTC->MODE2.CLOCK.bit.SECOND;
 }
 
 uint8_t RTCZero::getMinutes()
 {
+  RTCreadRequest();
   return RTC->MODE2.CLOCK.bit.MINUTE;
 }
 
 uint8_t RTCZero::getHours()
 {
+  RTCreadRequest();
   return RTC->MODE2.CLOCK.bit.HOUR;
 }
 
 uint8_t RTCZero::getDay()
 {
+  RTCreadRequest();
   return RTC->MODE2.CLOCK.bit.DAY;
 }
 
 uint8_t RTCZero::getMonth()
 {
+  RTCreadRequest();
   return RTC->MODE2.CLOCK.bit.MONTH;
 }
 
 uint8_t RTCZero::getYear()
 {
+  RTCreadRequest();
   return RTC->MODE2.CLOCK.bit.YEAR;
 }
 
@@ -355,6 +361,13 @@ void RTCZero::config32kOSC()
                          SYSCTRL_XOSC32K_XTALEN |
                          SYSCTRL_XOSC32K_STARTUP(6) |
                          SYSCTRL_XOSC32K_ENABLE;
+}
+
+/* Synchronise the CLOCK register for reading*/
+inline void RTCZero::RTCreadRequest() {
+  RTC->MODE2.READREQ.reg |= RTC_READREQ_RREQ;
+  while (RTCisSyncing())
+    ;
 }
 
 /* Wait for sync in write operations */

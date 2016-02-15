@@ -100,6 +100,7 @@ public:
 
 private:
   void config32kOSC(void);
+  void RTCreadRequest();
   bool RTCisSyncing(void);
   void RTCdisable();
   void RTCenable();
