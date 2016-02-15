@@ -358,7 +358,7 @@ void RTCZero::config32kOSC()
 }
 
 /* Wait for sync in write operations */
-bool RTCZero::RTCisSyncing()
+inline bool RTCZero::RTCisSyncing()
 {
   return (RTC->MODE2.STATUS.bit.SYNCBUSY);
 }
