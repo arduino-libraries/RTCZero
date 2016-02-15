@@ -28,6 +28,11 @@ setSeconds 			KEYWORD2
 setDate					KEYWORD2
 setTime					KEYWORD2
 
+getEpoch			KEYWORD2
+getY2kEpoch			KEYWORD2
+setEpoch			KEYWORD2
+setY2kEpoch			KEYWORD2
+
 getAlarmDay			KEYWORD2
 getAlarmMonth		KEYWORD2
 getAlarmYear		KEYWORD2

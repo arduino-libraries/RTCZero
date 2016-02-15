@@ -17,14 +17,14 @@
 RTCZero rtc;
 
 /* Change these values to set the current initial time */
-const uint8_t seconds = 0;
-const uint8_t minutes = 00;
-const uint8_t hours = 17;
+const byte seconds = 0;
+const byte minutes = 00;
+const byte hours = 17;
 
 /* Change these values to set the current initial date */
-const uint8_t day = 17;
-const uint8_t month = 11;
-const uint8_t year = 15;
+const byte day = 17;
+const byte month = 11;
+const byte year = 15;
 
 void setup()
 {

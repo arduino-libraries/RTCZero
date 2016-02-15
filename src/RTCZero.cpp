@@ -16,12 +16,13 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
- 
+
+#include <time.h>
+
 #include "RTCZero.h"
 
-#define EPOCH_TIME_OFF 946684800  // This is 1st January 2000, 00:00:00 in epoch time
-
-static const uint8_t daysInMonth[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+#define EPOCH_TIME_OFF      946684800  // This is 1st January 2000, 00:00:00 in epoch time
+#define EPOCH_TIME_YEAR_OFF 100        // years since 1900
 
 voidFuncPtr RTC_callBack = NULL;
 
@@ -296,78 +297,49 @@ void RTCZero::setAlarmDate(uint8_t day, uint8_t month, uint8_t year)
 
 uint32_t RTCZero::getEpoch()
 {
-  return getY2kEpoch() + EPOCH_TIME_OFF;
+  struct tm tm;
+
+  tm.tm_isdst = -1;
+  tm.tm_yday = 0;
+  tm.tm_wday = 0;
+  tm.tm_year = getYear() + EPOCH_TIME_YEAR_OFF;
+  tm.tm_mon = getMonth() - 1;
+  tm.tm_mday = getDay();
+  tm.tm_hour = getHours();
+  tm.tm_min = getMinutes();
+  tm.tm_sec = getSeconds();
+
+  return mktime(&tm);
 }
 
 uint32_t RTCZero::getY2kEpoch()
 {
-  uint16_t days = RTC->MODE2.CLOCK.bit.DAY;
-  days = days > 0 ? days : 1;
-  uint8_t months = RTC->MODE2.CLOCK.bit.MONTH;
-  uint16_t years = RTC->MODE2.CLOCK.bit.YEAR;
-
-  for (uint8_t i = 1; i < months; ++i) {
-    days += daysInMonth[i - 1];
-  }
-
-  if ((months > 2) && (years % 4 == 0)) {
-    ++days;
-  }
-  days += 365 * years + (years + 3) / 4 - 1;
-  
-  uint8_t hours = RTC->MODE2.CLOCK.bit.HOUR;
-
-  return ((days * 24 + hours) * 60 +
-    RTC->MODE2.CLOCK.bit.MINUTE) * 60 + RTC->MODE2.CLOCK.bit.SECOND;
+  return (getEpoch() - EPOCH_TIME_OFF);
 }
 
 void RTCZero::setEpoch(uint32_t ts)
 {
   if (ts < EPOCH_TIME_OFF) {
-    setY2kEpoch(0);
+    ts = EPOCH_TIME_OFF;
   }
-  else {
-    setY2kEpoch(ts - EPOCH_TIME_OFF);
-  }
+
+  time_t t = ts;
+  struct tm* tmp = gmtime(&t);
+
+  RTC->MODE2.CLOCK.bit.YEAR = tmp->tm_year - EPOCH_TIME_YEAR_OFF;
+  RTC->MODE2.CLOCK.bit.MONTH = tmp->tm_mon + 1;
+  RTC->MODE2.CLOCK.bit.DAY = tmp->tm_mday;
+  RTC->MODE2.CLOCK.bit.HOUR = tmp->tm_hour;
+  RTC->MODE2.CLOCK.bit.MINUTE = tmp->tm_min;
+  RTC->MODE2.CLOCK.bit.SECOND = tmp->tm_sec;
+
+  while (RTCisSyncing())
+    ;
 }
 
 void RTCZero::setY2kEpoch(uint32_t ts)
 {
-  RTC->MODE2.CLOCK.bit.SECOND = ts % 60;
-  ts /= 60;
-  RTC->MODE2.CLOCK.bit.MINUTE = ts % 60;
-  ts /= 60;
-  RTC->MODE2.CLOCK.bit.HOUR = ts % 24;
-
-  uint16_t days = ts / 24;
-  uint8_t months;
-  uint8_t years;
-
-  uint8_t leap;
-
-  // Calculate years
-  for (years = 0; ; ++years) {
-    leap = years % 4 == 0;
-    if (days < 365 + leap)
-      break;
-    days -= 365 + leap;
-  }
-
-  // Calculate months
-  for (months = 1; ; ++months) {
-    uint8_t daysPerMonth = daysInMonth[months - 1];
-    if (leap && months == 2)
-      ++daysPerMonth;
-    if (days < daysPerMonth)
-      break;
-    days -= daysPerMonth;
-  }
-
-  RTC->MODE2.CLOCK.bit.YEAR = years;
-  RTC->MODE2.CLOCK.bit.MONTH = months;
-  RTC->MODE2.CLOCK.bit.DAY = days + 1;
-  while (RTCisSyncing())
-    ;
+  setEpoch(ts + EPOCH_TIME_OFF);
 }
 
 /*
