@@ -303,17 +303,21 @@ void RTCZero::setAlarmDate(uint8_t day, uint8_t month, uint8_t year)
 
 uint32_t RTCZero::getEpoch()
 {
+  RTCreadRequest();
+  RTC_MODE2_CLOCK_Type clockTime;
+  clockTime.reg = RTC->MODE2.CLOCK.reg;
+
   struct tm tm;
 
   tm.tm_isdst = -1;
   tm.tm_yday = 0;
   tm.tm_wday = 0;
-  tm.tm_year = getYear() + EPOCH_TIME_YEAR_OFF;
-  tm.tm_mon = getMonth() - 1;
-  tm.tm_mday = getDay();
-  tm.tm_hour = getHours();
-  tm.tm_min = getMinutes();
-  tm.tm_sec = getSeconds();
+  tm.tm_year = clockTime.bit.YEAR + EPOCH_TIME_YEAR_OFF;
+  tm.tm_mon = clockTime.bit.MONTH - 1;
+  tm.tm_mday = clockTime.bit.DAY;
+  tm.tm_hour = clockTime.bit.HOUR;
+  tm.tm_min = clockTime.bit.MINUTE;
+  tm.tm_sec = clockTime.bit.SECOND;
 
   return mktime(&tm);
 }
@@ -365,7 +369,7 @@ void RTCZero::config32kOSC()
 
 /* Synchronise the CLOCK register for reading*/
 inline void RTCZero::RTCreadRequest() {
-  RTC->MODE2.READREQ.reg |= RTC_READREQ_RREQ;
+  RTC->MODE2.READREQ.reg = RTC_READREQ_RREQ | RTC_READREQ_ADDR(0x10);
   while (RTCisSyncing())
     ;
 }
