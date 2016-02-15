@@ -369,7 +369,7 @@ void RTCZero::config32kOSC()
 
 /* Synchronise the CLOCK register for reading*/
 inline void RTCZero::RTCreadRequest() {
-  RTC->MODE2.READREQ.reg = RTC_READREQ_RREQ | RTC_READREQ_ADDR(0x10);
+  RTC->MODE2.READREQ.reg = RTC_READREQ_RREQ;
   while (RTCisSyncing())
     ;
 }
