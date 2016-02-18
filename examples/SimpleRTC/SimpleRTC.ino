@@ -1,7 +1,7 @@
 /*
   Simple RTC for Arduino Zero
 
- Demonstrates the use of the RTC library for the Arduino Zero
+ Demonstrates the use of the RTC library for the Arduino Zero and MKR1000
 
  This example code is in the public domain
 
@@ -11,7 +11,7 @@
   15 Jun 2015
 
   modified
-  21 Oct 2015
+  18 Feb 2016
 */
 
 #include <RTCZero.h>
