@@ -1,12 +1,14 @@
 /*
-  Epoch time example for Arduino Zero
+  Epoch time example for Arduino Zero and MKR1000
 
-  Demonstrates the use of the RTC library for the Arduino Zero
+  Demonstrates how to set time using epoch for the Arduino Zero and MKR1000
 
   This example code is in the public domain
 
   created by Sandeep Mistry <s.mistry@arduino.cc>
   31 Dec 2015
+  modified
+  18 Feb 2016
 */
 
 #include <RTCZero.h>
