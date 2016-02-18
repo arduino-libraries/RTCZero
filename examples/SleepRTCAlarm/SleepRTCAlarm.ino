@@ -9,6 +9,13 @@
 
   created by Arturo Guadalupi
   17 Nov 2015
+  modified 
+  18 Feb 2016
+  
+  NOTE:
+  If you use this sketch with a MKR1000 you will see no output on the serial monitor.
+  This happens because the USB clock is stopped so it the USB connection is stopped too.
+  **To see again the USB port you have to double tap on the reset button!**
 */
 
 #include <RTCZero.h>
