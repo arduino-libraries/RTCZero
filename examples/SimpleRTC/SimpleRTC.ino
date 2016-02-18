@@ -1,5 +1,5 @@
 /*
-  Simple RTC for Arduino Zero
+  Simple RTC for Arduino Zero and MKR1000
 
  Demonstrates the use of the RTC library for the Arduino Zero and MKR1000
 
