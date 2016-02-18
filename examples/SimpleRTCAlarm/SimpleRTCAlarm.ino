@@ -1,7 +1,7 @@
 /*
-  Simple RTC Alarm for Arduino Zero
+  Simple RTC Alarm for Arduino Zero and MKR1000
 
-  Demonstrates the use of alarms using the RTC library for the Arduino Zero
+  Demonstrates how to set an RTC alarm for the Arduino Zero and MKR1000
 
   This example code is in the public domain
 
