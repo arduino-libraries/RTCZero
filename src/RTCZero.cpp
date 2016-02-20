@@ -26,6 +26,11 @@
 
 voidFuncPtr RTC_callBack = NULL;
 
+RTCZero::RTCZero()
+{
+  _configured = false;
+}
+
 void RTCZero::begin() 
 {
   uint16_t tmp_reg = 0;
@@ -72,6 +77,8 @@ void RTCZero::begin()
 
   RTCenable();
   RTCresetRemove();
+
+  _configured = true;
 }
 
 void RTC_Handler(void)
@@ -369,9 +376,11 @@ void RTCZero::config32kOSC()
 
 /* Synchronise the CLOCK register for reading*/
 inline void RTCZero::RTCreadRequest() {
-  RTC->MODE2.READREQ.reg = RTC_READREQ_RREQ;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.READREQ.reg = RTC_READREQ_RREQ;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 /* Wait for sync in write operations */
