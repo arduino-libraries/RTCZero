@@ -92,16 +92,20 @@ void RTC_Handler(void)
 
 void RTCZero::enableAlarm(Alarm_Match match)
 {
-  RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = match;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = match;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::disableAlarm()
 {
-  RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = 0x00;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = 0x00;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::attachInterrupt(voidFuncPtr callback)
@@ -198,114 +202,146 @@ uint8_t RTCZero::getAlarmYear()
 
 void RTCZero::setSeconds(uint8_t seconds)
 {
-  RTC->MODE2.CLOCK.bit.SECOND = seconds;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.CLOCK.bit.SECOND = seconds;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setMinutes(uint8_t minutes)
 {
-  RTC->MODE2.CLOCK.bit.MINUTE = minutes;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.CLOCK.bit.MINUTE = minutes;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setHours(uint8_t hours)
 {
-  RTC->MODE2.CLOCK.bit.HOUR = hours;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.CLOCK.bit.HOUR = hours;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setTime(uint8_t hours, uint8_t minutes, uint8_t seconds)
 {
-  setSeconds(seconds);
-  setMinutes(minutes);
-  setHours(hours);
+  if (_configured) {
+    setSeconds(seconds);
+    setMinutes(minutes);
+    setHours(hours);
+  }
 }
 
 void RTCZero::setDay(uint8_t day)
 {
-  RTC->MODE2.CLOCK.bit.DAY = day;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.CLOCK.bit.DAY = day;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setMonth(uint8_t month)
 {
-  RTC->MODE2.CLOCK.bit.MONTH = month;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.CLOCK.bit.MONTH = month;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setYear(uint8_t year)
 {
-  RTC->MODE2.CLOCK.bit.YEAR = year;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.CLOCK.bit.YEAR = year;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setDate(uint8_t day, uint8_t month, uint8_t year)
 {
-  setDay(day);
-  setMonth(month);
-  setYear(year);
+  if (_configured) {
+    setDay(day);
+    setMonth(month);
+    setYear(year);
+  }
 }
 
 void RTCZero::setAlarmSeconds(uint8_t seconds)
 {
-  RTC->MODE2.Mode2Alarm[0].ALARM.bit.SECOND = seconds;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.Mode2Alarm[0].ALARM.bit.SECOND = seconds;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setAlarmMinutes(uint8_t minutes)
 {
-  RTC->MODE2.Mode2Alarm[0].ALARM.bit.MINUTE = minutes;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.Mode2Alarm[0].ALARM.bit.MINUTE = minutes;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setAlarmHours(uint8_t hours)
 {
-  RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR = hours;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR = hours;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setAlarmTime(uint8_t hours, uint8_t minutes, uint8_t seconds)
 {
-  setAlarmSeconds(seconds);
-  setAlarmMinutes(minutes);
-  setAlarmHours(hours);
+  if (_configured) {
+    setAlarmSeconds(seconds);
+    setAlarmMinutes(minutes);
+    setAlarmHours(hours);
+  }
 }
 
 void RTCZero::setAlarmDay(uint8_t day)
 {
-  RTC->MODE2.Mode2Alarm[0].ALARM.bit.DAY = day;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.Mode2Alarm[0].ALARM.bit.DAY = day;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setAlarmMonth(uint8_t month)
 {
-  RTC->MODE2.Mode2Alarm[0].ALARM.bit.MONTH = month;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.Mode2Alarm[0].ALARM.bit.MONTH = month;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setAlarmYear(uint8_t year)
 {
-  RTC->MODE2.Mode2Alarm[0].ALARM.bit.YEAR = year;
-  while (RTCisSyncing())
-    ;
+  if (_configured) {
+    RTC->MODE2.Mode2Alarm[0].ALARM.bit.YEAR = year;
+    while (RTCisSyncing())
+      ;
+  }
 }
 
 void RTCZero::setAlarmDate(uint8_t day, uint8_t month, uint8_t year)
 {
-  setAlarmDay(day);
-  setAlarmMonth(month);
-  setAlarmYear(year);
+  if (_configured) {
+    setAlarmDay(day);
+    setAlarmMonth(month);
+    setAlarmYear(year);
+  }
 }
 
 uint32_t RTCZero::getEpoch()
@@ -336,27 +372,31 @@ uint32_t RTCZero::getY2kEpoch()
 
 void RTCZero::setEpoch(uint32_t ts)
 {
-  if (ts < EPOCH_TIME_OFF) {
-    ts = EPOCH_TIME_OFF;
+  if (_configured) {
+    if (ts < EPOCH_TIME_OFF) {
+      ts = EPOCH_TIME_OFF;
+    }
+
+    time_t t = ts;
+    struct tm* tmp = gmtime(&t);
+
+    RTC->MODE2.CLOCK.bit.YEAR = tmp->tm_year - EPOCH_TIME_YEAR_OFF;
+    RTC->MODE2.CLOCK.bit.MONTH = tmp->tm_mon + 1;
+    RTC->MODE2.CLOCK.bit.DAY = tmp->tm_mday;
+    RTC->MODE2.CLOCK.bit.HOUR = tmp->tm_hour;
+    RTC->MODE2.CLOCK.bit.MINUTE = tmp->tm_min;
+    RTC->MODE2.CLOCK.bit.SECOND = tmp->tm_sec;
+
+    while (RTCisSyncing())
+      ;
   }
-
-  time_t t = ts;
-  struct tm* tmp = gmtime(&t);
-
-  RTC->MODE2.CLOCK.bit.YEAR = tmp->tm_year - EPOCH_TIME_YEAR_OFF;
-  RTC->MODE2.CLOCK.bit.MONTH = tmp->tm_mon + 1;
-  RTC->MODE2.CLOCK.bit.DAY = tmp->tm_mday;
-  RTC->MODE2.CLOCK.bit.HOUR = tmp->tm_hour;
-  RTC->MODE2.CLOCK.bit.MINUTE = tmp->tm_min;
-  RTC->MODE2.CLOCK.bit.SECOND = tmp->tm_sec;
-
-  while (RTCisSyncing())
-    ;
 }
 
 void RTCZero::setY2kEpoch(uint32_t ts)
 {
-  setEpoch(ts + EPOCH_TIME_OFF);
+  if (_configured) {
+    setEpoch(ts + EPOCH_TIME_OFF);
+  }
 }
 
 /*
