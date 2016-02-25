@@ -54,7 +54,6 @@ public:
   uint8_t getSeconds();
   uint8_t getMinutes();
   uint8_t getHours();
-  uint8_t getAM_PM();
   
   uint8_t getDay();
   uint8_t getMonth();
@@ -63,7 +62,6 @@ public:
   uint8_t getAlarmSeconds();
   uint8_t getAlarmMinutes();
   uint8_t getAlarmHours();
-  uint8_t getAlarmAM_PM();
 
   uint8_t getAlarmDay();
   uint8_t getAlarmMonth();
