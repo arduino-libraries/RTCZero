@@ -1,5 +1,5 @@
 /*
-  Simple RTC Alarm for Arduino Zero
+  Sleep RTC Alarm for Arduino Zero
 
   Demonstrates the use an alarm to wake up an Arduino zero from Standby mode
 
