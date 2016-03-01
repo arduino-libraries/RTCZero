@@ -10,7 +10,7 @@
   created by Arturo Guadalupi
   17 Nov 2015
   modified 
-  18 Feb 2016
+  01 Mar 2016
   
   NOTE:
   If you use this sketch with a MKR1000 you will see no output on the serial monitor.
@@ -35,7 +35,8 @@ const byte year = 15;
 
 void setup()
 {
-  Serial.begin(115200);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
 
   rtc.begin();
 
@@ -52,20 +53,10 @@ void setup()
 
 void loop()
 {
-
-  Serial.println("Awake!");
-
-  for (int i = 0; i < 10; i++)
-    Serial.print(i);
-
-  Serial.println();
-
-  Serial.println("Done! Goodnight!");
-
   rtc.standbyMode();    // Sleep until next alarm match
 }
 
 void alarmMatch()
 {
-
+  digitalWrite(LED_BUILTIN, HIGH);
 }
