@@ -31,12 +31,24 @@ RTCZero::RTCZero()
   _configured = false;
 }
 
-void RTCZero::begin() 
+void RTCZero::begin(bool resetTime)
 {
   uint16_t tmp_reg = 0;
   
   PM->APBAMASK.reg |= PM_APBAMASK_RTC; // turn on digital interface clock
   config32kOSC();
+
+  // If the RTC is in clock mode and the reset was
+  // not due to POR or BOD, preserve the clock time
+  bool validTime = false;
+  RTC_MODE2_CLOCK_Type oldTime;
+
+  if ((!resetTime) && (PM->RCAUSE.reg & (PM_RCAUSE_SYST | PM_RCAUSE_WDT | PM_RCAUSE_EXT))) {
+    if (RTC->MODE2.CTRL.reg & RTC_MODE2_CTRL_MODE_CLOCK) {
+      validTime = true;
+      oldTime.reg = RTC->MODE2.CLOCK.reg;
+    }
+  }
 
   // Setup clock GCLK2 with OSC32K divided by 32
   GCLK->GENDIV.reg = GCLK_GENDIV_ID(2)|GCLK_GENDIV_DIV(4);
@@ -77,6 +89,13 @@ void RTCZero::begin()
 
   RTCenable();
   RTCresetRemove();
+
+  // If desired and valid, restore the time value
+  if ((!resetTime) && (validTime)) {
+    RTC->MODE2.CLOCK.reg = oldTime.reg;
+    while (RTCisSyncing())
+      ;
+  }
 
   _configured = true;
 }
