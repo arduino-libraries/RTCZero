@@ -40,6 +40,7 @@ void RTCZero::begin(bool resetTime)
 
   // If the RTC is in clock mode and the reset was
   // not due to POR or BOD, preserve the clock time
+  // POR causes a reset anyway, BOD behaviour is?
   bool validTime = false;
   RTC_MODE2_CLOCK_Type oldTime;
 
