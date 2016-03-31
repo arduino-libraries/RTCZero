@@ -38,8 +38,8 @@ public:
     MATCH_YYMMDDHHMMSS = RTC_MODE2_MASK_SEL_YYMMDDHHMMSS_Val  // Once, on a specific date and a specific time
   };
 
-  RTCZero() {};
-  void begin();
+  RTCZero();
+  void begin(bool resetTime = false);
 
   void enableAlarm(Alarm_Match match);
   void disableAlarm();
@@ -97,7 +97,10 @@ public:
   void setY2kEpoch(uint32_t ts);
 
 private:
+  bool _configured;
+
   void config32kOSC(void);
+  void RTCreadRequest();
   bool RTCisSyncing(void);
   void RTCdisable();
   void RTCenable();
