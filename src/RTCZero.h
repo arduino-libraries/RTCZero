@@ -95,6 +95,13 @@ public:
   uint32_t getY2kEpoch();
   void setEpoch(uint32_t ts);
   void setY2kEpoch(uint32_t ts);
+  void setAlarmEpoch(uint32_t ts);
+
+  bool isConfigured() {
+    _configured = RTC->MODE2.CTRL.reg & RTC_MODE2_CTRL_ENABLE;
+    configureClock();
+    return _configured;
+  }
 
 private:
   bool _configured;

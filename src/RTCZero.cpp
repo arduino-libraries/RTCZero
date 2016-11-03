@@ -382,6 +382,21 @@ uint32_t RTCZero::getY2kEpoch()
   return (getEpoch() - EPOCH_TIME_OFF);
 }
 
+void RTCZero::setAlarmEpoch(uint32_t ts)
+{
+  if (_configured) {
+    if (ts < EPOCH_TIME_OFF) {
+      ts = EPOCH_TIME_OFF;
+    }
+
+    time_t t = ts;
+    struct tm* tmp = gmtime(&t);
+
+    setAlarmDate(tmp->tm_year - EPOCH_TIME_YEAR_OFF, tmp->tm_mon + 1, tmp->tm_mday);
+    setAlarmTime(tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+  }
+}
+
 void RTCZero::setEpoch(uint32_t ts)
 {
   if (_configured) {
