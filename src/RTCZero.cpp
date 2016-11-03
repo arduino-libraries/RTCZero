@@ -52,15 +52,7 @@ void RTCZero::begin(bool resetTime)
   }
 
   // Setup clock GCLK2 with OSC32K divided by 32
-  GCLK->GENDIV.reg = GCLK_GENDIV_ID(2)|GCLK_GENDIV_DIV(4);
-  while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY)
-    ;
-  GCLK->GENCTRL.reg = (GCLK_GENCTRL_GENEN | GCLK_GENCTRL_SRC_XOSC32K | GCLK_GENCTRL_ID(2) | GCLK_GENCTRL_DIVSEL );
-  while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY)
-    ;
-  GCLK->CLKCTRL.reg = (uint32_t)((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK2 | (RTC_GCLK_ID << GCLK_CLKCTRL_ID_Pos)));
-  while (GCLK->STATUS.bit.SYNCBUSY)
-    ;
+  configureClock();
 
   RTCdisable();
 
@@ -417,6 +409,19 @@ void RTCZero::setY2kEpoch(uint32_t ts)
   if (_configured) {
     setEpoch(ts + EPOCH_TIME_OFF);
   }
+}
+
+/* Attach peripheral clock to 32k oscillator */
+void RTCZero::configureClock() {
+  GCLK->GENDIV.reg = GCLK_GENDIV_ID(2)|GCLK_GENDIV_DIV(4);
+  while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY)
+    ;
+  GCLK->GENCTRL.reg = (GCLK_GENCTRL_GENEN | GCLK_GENCTRL_SRC_XOSC32K | GCLK_GENCTRL_ID(2) | GCLK_GENCTRL_DIVSEL );
+  while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY)
+    ;
+  GCLK->CLKCTRL.reg = (uint32_t)((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK2 | (RTC_GCLK_ID << GCLK_CLKCTRL_ID_Pos)));
+  while (GCLK->STATUS.bit.SYNCBUSY)
+    ;
 }
 
 /*

@@ -100,6 +100,7 @@ private:
   bool _configured;
 
   void config32kOSC(void);
+  void configureClock(void);
   void RTCreadRequest();
   bool RTCisSyncing(void);
   void RTCdisable();
