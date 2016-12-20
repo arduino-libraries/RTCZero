@@ -392,7 +392,7 @@ void RTCZero::setAlarmEpoch(uint32_t ts)
     time_t t = ts;
     struct tm* tmp = gmtime(&t);
 
-    setAlarmDate(tmp->tm_year - EPOCH_TIME_YEAR_OFF, tmp->tm_mon + 1, tmp->tm_mday);
+    setAlarmDate(tmp->tm_mday, tmp->tm_mon + 1, tmp->tm_year - EPOCH_TIME_YEAR_OFF);
     setAlarmTime(tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
   }
 }
