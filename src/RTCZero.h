@@ -98,8 +98,6 @@ public:
   void setAlarmEpoch(uint32_t ts);
 
   bool isConfigured() {
-    _configured = RTC->MODE2.CTRL.reg & RTC_MODE2_CTRL_ENABLE;
-    configureClock();
     return _configured;
   }
 
