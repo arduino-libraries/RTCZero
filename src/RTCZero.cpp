@@ -83,12 +83,15 @@ void RTCZero::begin(bool resetTime)
   RTCenable();
   RTCresetRemove();
 
-  // If desired and valid, restore the time value
+  // If desired and valid, restore the time value, else use first valid time value
   if ((!resetTime) && (validTime)) {
     RTC->MODE2.CLOCK.reg = oldTime.reg;
-    while (RTCisSyncing())
-      ;
   }
+  else {
+    RTC->MODE2.CLOCK.reg = RTC_MODE2_CLOCK_MONTH(1) | RTC_MODE2_CLOCK_DAY(1);
+  }
+  while (RTCisSyncing())
+    ;
 
   _configured = true;
 }
