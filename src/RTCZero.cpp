@@ -24,6 +24,14 @@
 #define EPOCH_TIME_OFF      946684800  // This is 1st January 2000, 00:00:00 in epoch time
 #define EPOCH_TIME_YEAR_OFF 100        // years since 1900
 
+// Default date & time after reset
+#define DEFAULT_YEAR    2000    // 2000..2063
+#define DEFAULT_MONTH   1       // 1..12
+#define DEFAULT_DAY     1       // 1..31
+#define DEFAULT_HOUR    0       // 1..23
+#define DEFAULT_MINUTE  0       // 0..59
+#define DEFAULT_SECOND  0       // 0..59
+
 voidFuncPtr RTC_callBack = NULL;
 
 RTCZero::RTCZero()
@@ -88,10 +96,9 @@ void RTCZero::begin(bool resetTime)
     RTC->MODE2.CLOCK.reg = oldTime.reg;
   }
   else {
-    // Change the values here to set a default date and time
-    // Use calendar year-2000, month and day values cannot be 0
-    RTC->MODE2.CLOCK.reg = RTC_MODE2_CLOCK_YEAR(0) | RTC_MODE2_CLOCK_MONTH(1) | RTC_MODE2_CLOCK_DAY(1)
-        | RTC_MODE2_CLOCK_HOUR(0) | RTC_MODE2_CLOCK_MINUTE(0) | RTC_MODE2_CLOCK_SECOND(0);
+    RTC->MODE2.CLOCK.reg = RTC_MODE2_CLOCK_YEAR(DEFAULT_YEAR - 2000) | RTC_MODE2_CLOCK_MONTH(DEFAULT_MONTH) 
+        | RTC_MODE2_CLOCK_DAY(DEFAULT_DAY) | RTC_MODE2_CLOCK_HOUR(DEFAULT_HOUR) 
+        | RTC_MODE2_CLOCK_MINUTE(DEFAULT_MINUTE) | RTC_MODE2_CLOCK_SECOND(DEFAULT_SECOND);
   }
   while (RTCisSyncing())
     ;
