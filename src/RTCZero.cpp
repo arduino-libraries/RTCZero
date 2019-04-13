@@ -148,6 +148,7 @@ void RTCZero::standbyMode()
   // Entering standby mode when connected
   // via the native USB port causes issues.
   SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+  __DSB();
   __WFI();
 }
 
