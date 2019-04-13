@@ -420,12 +420,16 @@ void RTCZero::setEpoch(uint32_t ts)
     time_t t = ts;
     struct tm* tmp = gmtime(&t);
 
-    RTC->MODE2.CLOCK.bit.YEAR = tmp->tm_year - EPOCH_TIME_YEAR_OFF;
-    RTC->MODE2.CLOCK.bit.MONTH = tmp->tm_mon + 1;
-    RTC->MODE2.CLOCK.bit.DAY = tmp->tm_mday;
-    RTC->MODE2.CLOCK.bit.HOUR = tmp->tm_hour;
-    RTC->MODE2.CLOCK.bit.MINUTE = tmp->tm_min;
-    RTC->MODE2.CLOCK.bit.SECOND = tmp->tm_sec;
+    RTC_MODE2_CLOCK_Type clockTime;
+
+    clockTime.bit.YEAR = tmp->tm_year - EPOCH_TIME_YEAR_OFF;
+    clockTime.bit.MONTH = tmp->tm_mon + 1;
+    clockTime.bit.DAY = tmp->tm_mday;
+    clockTime.bit.HOUR = tmp->tm_hour;
+    clockTime.bit.MINUTE = tmp->tm_min;
+    clockTime.bit.SECOND = tmp->tm_sec;
+
+    RTC->MODE2.CLOCK.reg = clockTime.reg;
 
     while (RTCisSyncing())
       ;
