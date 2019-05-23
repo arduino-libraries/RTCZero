@@ -147,9 +147,13 @@ void RTCZero::standbyMode()
 {
   // Entering standby mode when connected
   // via the native USB port causes issues.
+	// Disable systick interrupt:  See https://www.avrfreaks.net/forum/samd21-samd21e16b-sporadically-locks-and-does-not-wake-standby-sleep-mode
+	SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;	
   SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
   __DSB();
   __WFI();
+	// Enable systick interrupt
+	SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;	
 }
 
 /*
@@ -405,9 +409,22 @@ void RTCZero::setAlarmEpoch(uint32_t ts)
 
     time_t t = ts;
     struct tm* tmp = gmtime(&t);
+    RTC_MODE2_CLOCK_Type alarmTime;
 
-    setAlarmDate(tmp->tm_mday, tmp->tm_mon + 1, tmp->tm_year - EPOCH_TIME_YEAR_OFF);
-    setAlarmTime(tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+    alarmTime.bit.YEAR = tmp->tm_year - EPOCH_TIME_YEAR_OFF;
+    alarmTime.bit.MONTH = tmp->tm_mon + 1;
+    alarmTime.bit.DAY = tmp->tm_mday;
+    alarmTime.bit.HOUR = tmp->tm_hour;
+    alarmTime.bit.MINUTE = tmp->tm_min;
+    alarmTime.bit.SECOND = tmp->tm_sec;
+
+    RTC->MODE2.Mode2Alarm[0].ALARM.reg = alarmTime.reg;
+
+    while (RTCisSyncing())
+      ;
+
+//    setAlarmDate(tmp->tm_mday, tmp->tm_mon + 1, tmp->tm_year - EPOCH_TIME_YEAR_OFF);
+//    setAlarmTime(tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
   }
 }
 
