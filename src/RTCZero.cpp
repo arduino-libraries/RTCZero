@@ -147,13 +147,13 @@ void RTCZero::standbyMode()
 {
   // Entering standby mode when connected
   // via the native USB port causes issues.
-	// Disable systick interrupt:  See https://www.avrfreaks.net/forum/samd21-samd21e16b-sporadically-locks-and-does-not-wake-standby-sleep-mode
-	SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;	
+  // Disable systick interrupt:  See https://www.avrfreaks.net/forum/samd21-samd21e16b-sporadically-locks-and-does-not-wake-standby-sleep-mode
+  SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;	
   SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
   __DSB();
   __WFI();
-	// Enable systick interrupt
-	SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;	
+  // Enable systick interrupt
+  SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;	
 }
 
 /*
@@ -423,8 +423,6 @@ void RTCZero::setAlarmEpoch(uint32_t ts)
     while (RTCisSyncing())
       ;
 
-//    setAlarmDate(tmp->tm_mday, tmp->tm_mon + 1, tmp->tm_year - EPOCH_TIME_YEAR_OFF);
-//    setAlarmTime(tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
   }
 }
 
