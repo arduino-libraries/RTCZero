@@ -404,10 +404,11 @@ void RTCZero::setAlarmEpoch(uint32_t ts)
     }
 
     time_t t = ts;
-    struct tm* tmp = gmtime(&t);
+    struct tm tmp;
 
-    setAlarmDate(tmp->tm_mday, tmp->tm_mon + 1, tmp->tm_year - EPOCH_TIME_YEAR_OFF);
-    setAlarmTime(tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+    gmtime_r(&t, &tmp);
+    setAlarmDate(tmp.tm_mday, tmp.tm_mon + 1, tmp.tm_year - EPOCH_TIME_YEAR_OFF);
+    setAlarmTime(tmp.tm_hour, tmp.tm_min, tmp.tm_sec);
   }
 }
 
@@ -419,16 +420,18 @@ void RTCZero::setEpoch(uint32_t ts)
     }
 
     time_t t = ts;
-    struct tm* tmp = gmtime(&t);
+    struct tm tmp;
+
+    gmtime_r(&t, &tmp);
 
     RTC_MODE2_CLOCK_Type clockTime;
 
-    clockTime.bit.YEAR = tmp->tm_year - EPOCH_TIME_YEAR_OFF;
-    clockTime.bit.MONTH = tmp->tm_mon + 1;
-    clockTime.bit.DAY = tmp->tm_mday;
-    clockTime.bit.HOUR = tmp->tm_hour;
-    clockTime.bit.MINUTE = tmp->tm_min;
-    clockTime.bit.SECOND = tmp->tm_sec;
+    clockTime.bit.YEAR = tmp.tm_year - EPOCH_TIME_YEAR_OFF;
+    clockTime.bit.MONTH = tmp.tm_mon + 1;
+    clockTime.bit.DAY = tmp.tm_mday;
+    clockTime.bit.HOUR = tmp.tm_hour;
+    clockTime.bit.MINUTE = tmp.tm_min;
+    clockTime.bit.SECOND = tmp.tm_sec;
 
     RTC->MODE2.CLOCK.reg = clockTime.reg;
 
