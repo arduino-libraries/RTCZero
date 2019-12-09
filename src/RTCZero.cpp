@@ -370,7 +370,7 @@ void RTCZero::setAlarmDate(uint8_t day, uint8_t month, uint8_t year)
   }
 }
 
-uint32_t RTCZero::getEpoch()
+time_t RTCZero::getEpoch()
 {
   RTCreadRequest();
   RTC_MODE2_CLOCK_Type clockTime;

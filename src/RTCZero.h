@@ -91,7 +91,7 @@ public:
 
   /* Epoch Functions */
 
-  uint32_t getEpoch();
+  time_t getEpoch();
   uint32_t getY2kEpoch();
   void setEpoch(uint32_t ts);
   void setY2kEpoch(uint32_t ts);
