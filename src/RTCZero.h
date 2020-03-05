@@ -112,6 +112,7 @@ private:
   void RTCenable();
   void RTCreset();
   void RTCresetRemove();
+  void RTCdefaultTime();
 };
 
 #endif // RTC_ZERO_H
