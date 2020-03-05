@@ -103,7 +103,7 @@ void RTCZero::begin(bool resetTime)
   while (RTCisSyncing())
     ;
 
-  RTCdefaultTime();
+  RTCsetCompileTime();
   _configured = true;
 }
 
@@ -522,15 +522,23 @@ void RTCZero::RTCresetRemove()
     ;
 }
 
-void RTCZero::RTCdefaultTime()
+void RTCZero::RTCsetCompileTime()
 {
   String time = __DATE__;                       // get compile time
   uint8_t hours = t.substring(0, 2).toInt();    
   uint8_t minutes = t.substring(3, 5).toInt();  
   uint8_t seconds = t.substring(6, 8).toInt();  
-  setTime(hours,minutes, seconds);              // get compile date
-  String date = __DATE__;
+  setTime(hours,minutes, seconds);              
+  
+  String date = __DATE__;                       // get compile date
   String monStr = t.substring(0,3);
+  uint8_t day = t.substring(4,6).toInt()
+  uint8_t year = t.substring(7).toInt()
+  setDate(day, monIndex(monStr), year);
+}
+
+uint8_t RTCZero::monIndex(String monStr)
+{
   uint8_t monInt = 0;
   // check for the last char
   // in Mar & Apr - Jan & Jun the last char is identical so check the second one
@@ -550,7 +558,5 @@ void RTCZero::RTCdefaultTime()
     case 'v': monInt = 11; break;
     case 'c': monInt = 12; break;
   }
-  uint8_t day = t.substring(4,6).toInt()
-  uint8_t year = t.substring(7).toInt()
-  setDate(day, monInt, year);
+  return monInt;
 }
