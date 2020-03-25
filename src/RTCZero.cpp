@@ -17,8 +17,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-//Edited by A. McMahon 2/20/2020, Added Mode 0 and Mode 1
-
 #include <time.h>
 
 #include "RTCZero.h"
@@ -55,7 +53,7 @@ void RTCZero::begin(bool resetTime, uint8_t mode, bool clearOnMatch, Prescaler p
   config32kOSC();
 
 
-   if (rtc_mode==0) {
+  if (rtc_mode==0) {
     // If the RTC is in 32-bit counter mode and the reset was
     // not due to POR or BOD, preserve the clock time
     // POR causes a reset anyway, BOD behaviour is?
@@ -730,7 +728,7 @@ void RTCZero::RTCreset()
 void RTCZero::RTCresetRemove()
 {
   if (rtc_mode==0) RTC->MODE0.CTRL.reg &= ~RTC_MODE0_CTRL_SWRST;        // software reset remove, Mode 0
-  if (rtc_mode==1) RTC->MODE1.CTRL.reg &= ~RTC_MODE1_CTRL_SWRST;        // software reset remove, Mode 1
+  else if (rtc_mode==1) RTC->MODE1.CTRL.reg &= ~RTC_MODE1_CTRL_SWRST;        // software reset remove, Mode 1
   else RTC->MODE2.CTRL.reg &= ~RTC_MODE2_CTRL_SWRST;                    // software reset remove, Mode 2
   while (RTCisSyncing())
     ;

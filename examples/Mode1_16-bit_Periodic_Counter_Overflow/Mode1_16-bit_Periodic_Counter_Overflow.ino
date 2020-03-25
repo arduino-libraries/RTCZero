@@ -19,8 +19,6 @@
 /* Create an rtc object */
 RTCZero rtc;
 
-void countInt(void);
-
 void setup()
 {
   Serial.begin(9600);
