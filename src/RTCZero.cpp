@@ -156,13 +156,6 @@ void RTCZero::standbyMode()
   __WFI();
 }
 
-void RTCZero::enable12Hrsformat()
-{
-  RTCdisable();
-  RTC->MODE2.CTRL.reg  = RTC_MODE2_CTRL_CLKREP;
-  RTCenable();
-}
-
 /*
  * Get Functions
  */

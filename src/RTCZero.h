@@ -48,7 +48,6 @@ public:
   void detachInterrupt();
   
   void standbyMode();
-  void enable12Hrsformat();
   
   /* Get Functions */
 
