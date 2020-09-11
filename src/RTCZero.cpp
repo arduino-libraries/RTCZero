@@ -39,7 +39,7 @@ RTCZero::RTCZero()
   _configured = false;
 }
 
-void RTCZero::begin(bool resetTime)
+void RTCZero::begin(bool twelveHrsformat,bool resetTime)
 {
   uint16_t tmp_reg = 0;
   
@@ -72,6 +72,10 @@ void RTCZero::begin(bool resetTime)
   
   //According to the datasheet RTC_MODE2_CTRL_CLKREP = 0 for 24h
   tmp_reg &= ~RTC_MODE2_CTRL_CLKREP; // 24h time representation
+  if(twelveHrsformat)
+  {
+    tmp_reg |= RTC_MODE2_CTRL_CLKREP; // 12h time representation 
+  }
 
   RTC->MODE2.READREQ.reg &= ~RTC_READREQ_RCONT; // disable continuously mode
 
@@ -150,6 +154,13 @@ void RTCZero::standbyMode()
   SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
   __DSB();
   __WFI();
+}
+
+void RTCZero::enable12Hrsformat()
+{
+  RTCdisable();
+  RTC->MODE2.CTRL.reg  = RTC_MODE2_CTRL_CLKREP;
+  RTCenable();
 }
 
 /*
