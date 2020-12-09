@@ -104,8 +104,11 @@ public:
 private:
   bool _configured;
 
+  bool isHotReset(void);
   void config32kOSC(void);
   void configureClock(void);
+  bool RTCisClock(void);
+  void RTCconfigureRegs(void);
   void RTCreadRequest();
   bool RTCisSyncing(void);
   void RTCdisable();

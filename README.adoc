@@ -1,6 +1,9 @@
 = RTC Library for Arduino =
 
-The RTC library enables an Arduino Zero or MKR1000 board to take control of the internal RTC.
+The RTC library enables a supported board to take control of the internal RTC.
+Supported boards are:
+SAMD21-based boards (Arduino Zero, MKR1000, Adafruit Feather M0, Sparkfun SAMD21 Mini Breakout, etc),
+SAMD51-based boards (Adafruit Grand Central M4, SparkFun SAMD51 Thing Plus, etc).
 
 For more information about this library please visit us at
 http://arduino.cc/en/Reference/RTC
