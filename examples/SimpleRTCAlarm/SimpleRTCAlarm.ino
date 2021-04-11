@@ -16,7 +16,7 @@
 
 #include <RTCZero.h>
 
-/* Create an rtc object */
+/* Create an RTCZero object */
 RTCZero rtc;
 
 /* Change these values to set the current initial time */
