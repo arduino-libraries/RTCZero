@@ -23,6 +23,9 @@ jobs:
     name: ${{ matrix.board.fqbn }}
     runs-on: ubuntu-latest
 
+    env:
+      SKETCHES_REPORTS_PATH: sketches-reports
+
     strategy:
       fail-fast: false
 
@@ -58,12 +61,6 @@ jobs:
           - fqbn: arduino:samd:mkrvidor4000
             platforms: |
               - name: arduino:samd
-          - fqbn: arduino:mbed_portenta:envie_m4
-            platforms: |
-              - name: arduino:mbed_portenta
-          - fqbn: arduino:mbed_portenta:envie_m7
-            platforms: |
-              - name: arduino:mbed_portenta
           - fqbn: arduino:samd:nano_33_iot
             platforms: |
               - name: arduino:samd
@@ -85,3 +82,12 @@ jobs:
             # See: https://github.com/arduino/compile-sketches#libraries
           sketch-paths: |
             - examples
+          enable-deltas-report: true
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
+
+      - name: Save sketches report as workflow artifact
+        uses: actions/upload-artifact@v2
+        with:
+          if-no-files-found: error
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
+          name: ${{ env.SKETCHES_REPORTS_PATH }}
