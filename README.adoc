@@ -1,4 +1,9 @@
-= RTC Library for Arduino =
+:repository-owner: arduino-libraries
+:repository-name: RTCZero
+
+= {repository-name} Library for Arduino =
+
+image:https://github.com/{repository-owner}/{repository-name}/actions/workflows/spell-check.yml/badge.svg["Spell Check status", link="https://github.com/{repository-owner}/{repository-name}/actions/workflows/spell-check.yml"]
 
 The RTC library enables an Arduino Zero or MKR1000 board to take control of the internal RTC.
 
