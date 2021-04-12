@@ -468,7 +468,7 @@ void RTCZero::configureClock() {
  * Private Utility Functions
  */
 
-/* Configure the 32768Hz Oscillator */
+/* Configure the 32768 Hz Oscillator */
 void RTCZero::config32kOSC() 
 {
 #ifndef CRYSTALLESS

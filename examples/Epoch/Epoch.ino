@@ -13,7 +13,7 @@
 
 #include <RTCZero.h>
 
-/* Create an rtc object */
+/* Create an RTCZero object */
 RTCZero rtc;
 
 void setup() {
@@ -57,4 +57,3 @@ void print2digits(int number) {
   }
   Serial.print(number);
 }
-
