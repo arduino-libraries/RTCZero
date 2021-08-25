@@ -8,7 +8,7 @@ Initializes the internal RTC. begin() needs to be called before any other RTC li
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.begin()
 ```
 
@@ -23,7 +23,7 @@ Set the RTC hours value.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setHours(byte hours)
 ```
 
@@ -37,7 +37,7 @@ Set the RTC minutes value.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setMinutes(byte minutes)
 ```
 
@@ -51,7 +51,7 @@ Set the RTC hours, minutes and seconds.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setTime(byte hours, byte minutes, byte seconds)
 ```
 
@@ -67,7 +67,7 @@ Set the RTC year.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setYear(byte year)
 ```
 
@@ -81,7 +81,7 @@ Set the RTC month.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setMonth(uint8_t month)
 ```
 
@@ -95,7 +95,7 @@ Set the RTC day.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setDay(byte day)
 ```
 
@@ -109,7 +109,7 @@ Set the RTC day, month and year.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setDate(byte day, byte month, byte year)
 ```
 
@@ -127,11 +127,11 @@ Get the RTC hours value.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.getHours()
 ```
 
-Return
+#### Return
 the hours value.
 
 ### `getMinutes()`
@@ -140,11 +140,11 @@ Get the RTC minutes value.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.getMinutes()
 ```
 
-Return
+#### Return
 the minutes value.
 
 ### `getSeconds()`
@@ -153,11 +153,11 @@ Get the RTC seconds value.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.getSeconds()
 ```
 
-Return
+#### Return
 the seconds value.
 
 ### `getYear()`
@@ -166,11 +166,11 @@ Get the RTC Year value.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.getYear()
 ```
 
-Return
+#### Return
 the year value.
 
 ### `getMonth()`
@@ -179,11 +179,11 @@ Get the RTC month value.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.getMonth()
 ```
 
-Return
+#### Return
 the month value.
 getDay()
 
@@ -191,11 +191,11 @@ Get the RTC day value.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rTC.getDay()
 ```
 
-Return
+#### Return
 the day value.
 
 ### `setAlarmHours()`
@@ -204,7 +204,7 @@ Set the RTC Alarm hours value.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setAlarmHours(uint8_t hours)
 ```
 
@@ -218,7 +218,7 @@ Set the RTC Alarm minutes value.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setAlarmMinutes(byte minutes)
 ```
 
@@ -232,7 +232,7 @@ Set the RTC Alarm seconds value.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setAlarmSeconds(byte seconds)
 ```
 
@@ -246,7 +246,7 @@ Set the RTC Alarm hours, minutes and seconds.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setAlarmTime(byte hours, byte minutes, byte seconds)
 ```
 
@@ -264,7 +264,7 @@ Set the RTC Alarm year.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setAlarmYear(byte year)
 ```
 
@@ -278,7 +278,7 @@ Set the RTC Alarm month.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setAlarmMonth(byte month)
 ```
 
@@ -292,7 +292,7 @@ Set the RTC Alarm day.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setAlarmDay(uint8_t day)
 ```
 
@@ -306,7 +306,7 @@ Set the RTC Alarm day, month and year.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.setAlarmDate(byte day, byte month, byte year)
 ```
 
@@ -324,7 +324,7 @@ Enable the RTC alarm to be triggered on a chosen match type
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.enableAlarm(rtc.AlarmMatch)
 ```
 
@@ -345,7 +345,7 @@ Disable the RTC alarm triggering.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.disableAlarm()
 ```
 
@@ -359,7 +359,7 @@ Attach an interrupt action on alarm match.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.attachInterrupt(voidFuncPtr callback)
 ```
 
@@ -373,7 +373,7 @@ Detach interrupt action on alarm match.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.detachInterrupt()
 ```
 
@@ -387,7 +387,7 @@ Send the board in standby mode.
 
 #### Syntax
 
-``` Arduino
+``` arduino
 rtc.standbyMode()
 ```
 
