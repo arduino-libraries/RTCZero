@@ -185,7 +185,8 @@ rtc.getMonth()
 
 #### Return
 the month value.
-getDay()
+
+### `getDay()`
 
 Get the RTC day value.
 
