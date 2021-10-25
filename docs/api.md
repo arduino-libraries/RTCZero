@@ -45,6 +45,21 @@ rtc.setMinutes(byte minutes)
 
 - minutes: the minutes value to be set.
 
+### `setSeconds()`
+
+#### Description
+Set the RTC seconds value.
+
+#### Syntax
+
+```
+rtc.setSeconds(byte seconds)
+```
+
+#### Parameters
+seconds: the seconds value to be set.
+
+
 ### `setTime()`
 
 Set the RTC hours, minutes and seconds.
