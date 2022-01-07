@@ -50,7 +50,7 @@ void RTCZero::begin(bool resetTime)
   // not due to POR or BOD, preserve the clock time
   // POR causes a reset anyway, BOD behaviour is?
   bool validTime = false;
-  RTC_MODE2_CLOCK_Type oldTime;
+  RTC_MODE2_CLOCK_Type oldTime = {.reg=0L};
 
   if ((!resetTime) && (PM->RCAUSE.reg & (PM_RCAUSE_SYST | PM_RCAUSE_WDT | PM_RCAUSE_EXT))) {
     if (RTC->MODE2.CTRL.reg & RTC_MODE2_CTRL_MODE_CLOCK) {
@@ -391,9 +391,30 @@ time_t RTCZero::getEpoch()
   return mktime(&tm);
 }
 
-uint32_t RTCZero::getY2kEpoch()
+time_t RTCZero::getY2kEpoch()
 {
   return (getEpoch() - EPOCH_TIME_OFF);
+}
+
+time_t RTCZero::getAlarmEpoch()
+{
+  RTCreadRequest();
+  RTC_MODE2_ALARM_Type alarmTime;
+  alarmTime.reg = RTC->MODE2.Mode2Alarm[0].ALARM.reg;
+
+  struct tm tm;
+
+  tm.tm_isdst = -1;
+  tm.tm_yday = 0;
+  tm.tm_wday = 0;
+  tm.tm_year = alarmTime.bit.YEAR + EPOCH_TIME_YEAR_OFF;
+  tm.tm_mon = alarmTime.bit.MONTH - 1;
+  tm.tm_mday = alarmTime.bit.DAY;
+  tm.tm_hour = alarmTime.bit.HOUR;
+  tm.tm_min = alarmTime.bit.MINUTE;
+  tm.tm_sec = alarmTime.bit.SECOND;
+
+  return mktime(&tm);
 }
 
 void RTCZero::setAlarmEpoch(uint32_t ts)
