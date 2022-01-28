@@ -5,7 +5,7 @@ This library allows an enables an Arduino based on SAMD architectures (es. [Zero
 To use this library
 
 ``` arduino
-#include <RTC.h>
+#include <RTCZero.h>
 ```
 
 ## Examples
