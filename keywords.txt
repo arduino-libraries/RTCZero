@@ -54,6 +54,8 @@ disableAlarm	KEYWORD2
 
 standbyMode	KEYWORD2
 
+setFrequencyCorrection KEYWORD2
+
 #######################################
 # Constants (LITERAL1)
 #######################################
