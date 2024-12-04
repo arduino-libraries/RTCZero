@@ -103,6 +103,7 @@ void RTCZero::begin(bool resetTime)
   while (RTCisSyncing())
     ;
 
+  RTCsetCompileTime();
   _configured = true;
 }
 
@@ -522,4 +523,43 @@ void RTCZero::RTCresetRemove()
   RTC->MODE2.CTRL.reg &= ~RTC_MODE2_CTRL_SWRST; // software reset remove
   while (RTCisSyncing())
     ;
+}
+
+void RTCZero::RTCsetCompileTime()
+{
+  String time = __DATE__;                       // get compile time
+  uint8_t hours = t.substring(0, 2).toInt();    
+  uint8_t minutes = t.substring(3, 5).toInt();  
+  uint8_t seconds = t.substring(6, 8).toInt();  
+  setTime(hours,minutes, seconds);              
+  
+  String date = __DATE__;                       // get compile date
+  String monStr = t.substring(0,3);
+  uint8_t day = t.substring(4,6).toInt()
+  uint8_t year = t.substring(7).toInt()
+  setDate(day, monIndex(monStr), year);
+}
+
+uint8_t RTCZero::monIndex(String monStr)
+{
+  uint8_t monInt = 0;
+  // check for the last char
+  // in Mar & Apr - Jan & Jun the last char is identical so check the second one
+  switch(monStr[2]){       
+    case 'n':
+      monInt = (monStr[1] == 'a')? 1 : 6;
+      break;
+    case 'b': monInt = 2; break;
+    case 'r': 
+      monInt = (monStr[1] == 'a')? 3 : 4;
+      break;
+    case 'y': monInt = 5; break;
+    case 'l': monInt = 7; break;
+    case 'g': monInt = 8; break;
+    case 'p': monInt = 9; break;
+    case 't': monInt = 10; break;
+    case 'v': monInt = 11; break;
+    case 'c': monInt = 12; break;
+  }
+  return monInt;
 }
