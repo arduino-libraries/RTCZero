@@ -411,3 +411,17 @@ rtc.standbyMode()
 #### Parameters
 
 None
+
+### `setFrequencyCorrection()`
+
+Set the RTC frequency correction value. A positive value reduces the frequency, a negative value will increase the frequency.
+
+#### Syntax
+
+``` arduino
+rtc.setFrequencyCorrection(int8_t correction)
+```
+
+#### Parameters
+
+- correction: the number of counts to be increased or decreasd periodically by the RTC frequency correction module.
