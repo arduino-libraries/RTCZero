@@ -465,6 +465,34 @@ void RTCZero::configureClock() {
 }
 
 /*
+ * From: SAM D21 Family Datasheet - Chapter 19.6.9.2
+ * ============================================================================
+ * Correction[ppm] = (FREQCORR.VALUE / 4096 * 240) * 10^6 ppm
+ *
+ * FREQCORR.VALUE = (correction[ppm] * 4096 * 240) / 10^6 = correction * 4096 * 240
+ *
+ * Example:
+ * Correction = 1s / 24h = 1s / 86400s = 1/86400
+ * FREQCORR.VALUE = 1/86400 * 4096 * 240 = 11
+ */
+
+void RTCZero::setFrequencyCorrection(int8_t correction)
+{
+  if (correction == 0 || correction == -128) {
+    return;
+  }
+  
+  uint8_t sign = (correction & 0x80);
+  
+  if (correction < 0) {
+    correction *= -1;
+  }
+  
+  while(RTC->MODE2.STATUS.bit.SYNCBUSY);
+  RTC->MODE2.FREQCORR.reg = sign | correction;
+}
+
+/*
  * Private Utility Functions
  */
 
