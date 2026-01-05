@@ -22,6 +22,8 @@
 
 #include "Arduino.h"
 
+#define RTCZERO_FREQCORR(_CORR_)	(_CORR_ * 240 * 4096)
+
 typedef void(*voidFuncPtr)(void);
 
 class RTCZero {
@@ -88,6 +90,8 @@ public:
   void setAlarmMonth(uint8_t month);
   void setAlarmYear(uint8_t year);
   void setAlarmDate(uint8_t day, uint8_t month, uint8_t year);
+  
+  void setFrequencyCorrection(int8_t correction);
 
   /* Epoch Functions */
 
