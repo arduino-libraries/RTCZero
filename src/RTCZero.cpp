@@ -33,29 +33,57 @@
 #define DEFAULT_SECOND  0       // 0..59
 
 voidFuncPtr RTC_callBack = NULL;
+uint8_t rtc_mode = 2;
 
 RTCZero::RTCZero()
 {
   _configured = false;
 }
 
-void RTCZero::begin(bool resetTime)
+void RTCZero::begin(bool resetTime, uint8_t mode, bool clearOnMatch, Prescaler prescale)
 {
   uint16_t tmp_reg = 0;
+  rtc_mode = mode;
+  bool validTime = false;
+  RTC_MODE0_COUNT_Type mode0_oldCount;
+  RTC_MODE1_COUNT_Type mode1_oldCount;
+  RTC_MODE2_CLOCK_Type mode2_oldTime;
   
   PM->APBAMASK.reg |= PM_APBAMASK_RTC; // turn on digital interface clock
   config32kOSC();
 
-  // If the RTC is in clock mode and the reset was
-  // not due to POR or BOD, preserve the clock time
-  // POR causes a reset anyway, BOD behaviour is?
-  bool validTime = false;
-  RTC_MODE2_CLOCK_Type oldTime;
 
-  if ((!resetTime) && (PM->RCAUSE.reg & (PM_RCAUSE_SYST | PM_RCAUSE_WDT | PM_RCAUSE_EXT))) {
-    if (RTC->MODE2.CTRL.reg & RTC_MODE2_CTRL_MODE_CLOCK) {
-      validTime = true;
-      oldTime.reg = RTC->MODE2.CLOCK.reg;
+  if (rtc_mode==0) {
+    // If the RTC is in 32-bit counter mode and the reset was
+    // not due to POR or BOD, preserve the clock time
+    // POR causes a reset anyway, BOD behaviour is?
+    if ((!resetTime) && (PM->RCAUSE.reg & (PM_RCAUSE_SYST | PM_RCAUSE_WDT | PM_RCAUSE_EXT))) {
+      if (RTC->MODE0.CTRL.reg & RTC_MODE0_CTRL_MODE_COUNT32) {
+        validTime = true;
+        mode0_oldCount.reg = RTC->MODE0.COUNT.reg;
+      }
+    }
+  } 
+  else if (rtc_mode==1) {
+    // If the RTC is in 16-bit counter mode and the reset was
+    // not due to POR or BOD, preserve the clock time
+    // POR causes a reset anyway, BOD behaviour is?
+    if ((!resetTime) && (PM->RCAUSE.reg & (PM_RCAUSE_SYST | PM_RCAUSE_WDT | PM_RCAUSE_EXT))) {
+      if (RTC->MODE1.CTRL.reg & RTC_MODE1_CTRL_MODE_COUNT16) {
+        validTime = true;
+        mode1_oldCount.reg = RTC->MODE1.COUNT.reg;
+      }
+    }
+  } 
+  else {
+    // If the RTC is in clock mode and the reset was
+    // not due to POR or BOD, preserve the clock time
+    // POR causes a reset anyway, BOD behaviour is?
+    if ((!resetTime) && (PM->RCAUSE.reg & (PM_RCAUSE_SYST | PM_RCAUSE_WDT | PM_RCAUSE_EXT))) {
+      if (RTC->MODE2.CTRL.reg & RTC_MODE2_CTRL_MODE_CLOCK) {
+        validTime = true;
+        mode2_oldTime.reg = RTC->MODE2.CLOCK.reg;
+      }
     }
   }
 
@@ -66,42 +94,86 @@ void RTCZero::begin(bool resetTime)
 
   RTCreset();
 
-  tmp_reg |= RTC_MODE2_CTRL_MODE_CLOCK; // set clock operating mode
-  tmp_reg |= RTC_MODE2_CTRL_PRESCALER_DIV1024; // set prescaler to 1024 for MODE2
-  tmp_reg &= ~RTC_MODE2_CTRL_MATCHCLR; // disable clear on match
-  
-  //According to the datasheet RTC_MODE2_CTRL_CLKREP = 0 for 24h
-  tmp_reg &= ~RTC_MODE2_CTRL_CLKREP; // 24h time representation
+  if (rtc_mode==0) {
+    if (prescale==None) prescale = MODE0_DIV1024;   // set prescaler default to 1024
+    tmp_reg |= RTC_MODE0_CTRL_MODE_COUNT32;         // set 32-bit counter operating mode
+    tmp_reg |= prescale;                            // set prescaler
+    
+    if (clearOnMatch==true) tmp_reg |= RTC_MODE0_CTRL_MATCHCLR;     // enable clear on match
+    else tmp_reg &= ~RTC_MODE0_CTRL_MATCHCLR;                       // disable clear on match
 
-  RTC->MODE2.READREQ.reg &= ~RTC_READREQ_RCONT; // disable continuously mode
+    RTC->MODE0.READREQ.reg &= ~RTC_READREQ_RCONT;   // disable continuously mode
 
-  RTC->MODE2.CTRL.reg = tmp_reg;
-  while (RTCisSyncing())
-    ;
+    RTC->MODE0.CTRL.reg = tmp_reg;
+  }
+  else if (rtc_mode==1) {
+    if (prescale==None) prescale = MODE1_DIV1024;   // set prescaler default to 1024
+    tmp_reg |= RTC_MODE1_CTRL_MODE_COUNT16;         // set 16-bit counter operating mode
+    tmp_reg |= prescale;                            // set prescaler
+
+    RTC->MODE1.READREQ.reg &= ~RTC_READREQ_RCONT;   // disable continuously mode
+
+    RTC->MODE1.CTRL.reg = tmp_reg;
+  }
+  else {
+    if (prescale==None) prescale = MODE2_DIV1024;   // set prescaler default to 1024
+    tmp_reg |= RTC_MODE2_CTRL_MODE_CLOCK;           // set clock operating mode
+    tmp_reg |= prescale;                            // set prescaler
+    tmp_reg &= ~RTC_MODE2_CTRL_MATCHCLR;            // disable clear on match
+    
+    //According to the datasheet RTC_MODE2_CTRL_CLKREP = 0 for 24h
+    tmp_reg &= ~RTC_MODE2_CTRL_CLKREP; // 24h time representation
+
+    RTC->MODE2.READREQ.reg &= ~RTC_READREQ_RCONT; // disable continuously mode
+
+    RTC->MODE2.CTRL.reg = tmp_reg;
+  }
+
+  while (RTCisSyncing());
 
   NVIC_EnableIRQ(RTC_IRQn); // enable RTC interrupt 
   NVIC_SetPriority(RTC_IRQn, 0x00);
 
-  RTC->MODE2.INTENSET.reg |= RTC_MODE2_INTENSET_ALARM0; // enable alarm interrupt
-  RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = MATCH_OFF; // default alarm match is off (disabled)
-  
-  while (RTCisSyncing())
-    ;
+  //Mode 0 and Mode 1 compare interrupts don't have a "disabled" mask option, so don't enable interrupts until alarm is enabled for those modes
+  if (rtc_mode==2){
+    RTC->MODE2.INTENSET.reg |= RTC_MODE2_INTENSET_ALARM0; // enable alarm interrupt
+    RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = MATCH_OFF; // default alarm match is off (disabled)
+  }
+
+  while (RTCisSyncing());
 
   RTCenable();
   RTCresetRemove();
 
-  // If desired and valid, restore the time value, else use first valid time value
-  if ((!resetTime) && (validTime) && (oldTime.reg != 0L)) {
-    RTC->MODE2.CLOCK.reg = oldTime.reg;
+  // If desired and valid, restore the time or count value, else use first valid time value/start count from 0
+  if (rtc_mode==0) {
+    if ((!resetTime) && (validTime) && (mode0_oldCount.reg != 0L)) {
+      RTC->MODE0.COUNT.reg = mode0_oldCount.reg;
+    }
+    else {
+      RTC->MODE0.COUNT.reg = RTC_MODE0_COUNT_RESETVALUE;
+    }
+  }
+  else if (rtc_mode==1) {
+    if ((!resetTime) && (validTime) && (mode1_oldCount.reg != 0L)) {
+      RTC->MODE1.COUNT.reg = mode1_oldCount.reg;
+    }
+    else {
+      RTC->MODE1.COUNT.reg = RTC_MODE1_COUNT_RESETVALUE;
+    }
   }
   else {
-    RTC->MODE2.CLOCK.reg = RTC_MODE2_CLOCK_YEAR(DEFAULT_YEAR - 2000) | RTC_MODE2_CLOCK_MONTH(DEFAULT_MONTH) 
-        | RTC_MODE2_CLOCK_DAY(DEFAULT_DAY) | RTC_MODE2_CLOCK_HOUR(DEFAULT_HOUR) 
-        | RTC_MODE2_CLOCK_MINUTE(DEFAULT_MINUTE) | RTC_MODE2_CLOCK_SECOND(DEFAULT_SECOND);
+    if ((!resetTime) && (validTime) && (mode2_oldTime.reg != 0L)) {
+      RTC->MODE2.CLOCK.reg = mode2_oldTime.reg;
+    }
+    else {
+      RTC->MODE2.CLOCK.reg = RTC_MODE2_CLOCK_YEAR(DEFAULT_YEAR - 2000) | RTC_MODE2_CLOCK_MONTH(DEFAULT_MONTH) 
+          | RTC_MODE2_CLOCK_DAY(DEFAULT_DAY) | RTC_MODE2_CLOCK_HOUR(DEFAULT_HOUR) 
+          | RTC_MODE2_CLOCK_MINUTE(DEFAULT_MINUTE) | RTC_MODE2_CLOCK_SECOND(DEFAULT_SECOND);
+    }
   }
-  while (RTCisSyncing())
-    ;
+
+  while (RTCisSyncing());
 
   _configured = true;
 }
@@ -112,12 +184,15 @@ void RTC_Handler(void)
     RTC_callBack();
   }
 
-  RTC->MODE2.INTFLAG.reg = RTC_MODE2_INTFLAG_ALARM0; // must clear flag at end
+  // must clear flag at end
+  if (rtc_mode==0) RTC->MODE0.INTFLAG.reg |= (RTC_MODE0_INTFLAG_CMP0 | RTC_MODE0_INTFLAG_OVF);
+  else if (rtc_mode==1) RTC->MODE1.INTFLAG.reg |= (RTC_MODE1_INTFLAG_CMP0 | RTC_MODE1_INTFLAG_CMP1 | RTC_MODE0_INTFLAG_OVF);
+  else RTC->MODE2.INTFLAG.reg |= (RTC_MODE2_INTFLAG_ALARM0 | RTC_MODE0_INTFLAG_OVF);
 }
 
 void RTCZero::enableAlarm(Alarm_Match match)
 {
-  if (_configured) {
+  if (_configured && rtc_mode==2) {
     RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = match;
     while (RTCisSyncing())
       ;
@@ -126,10 +201,64 @@ void RTCZero::enableAlarm(Alarm_Match match)
 
 void RTCZero::disableAlarm()
 {
-  if (_configured) {
+  if (_configured && rtc_mode==2) {
     RTC->MODE2.Mode2Alarm[0].MASK.bit.SEL = 0x00;
     while (RTCisSyncing())
       ;
+  }
+}
+
+void RTCZero::enableCounter(unsigned int comp0, unsigned int comp1)
+{
+  if (_configured && rtc_mode==1) {
+    RTC->MODE1.COMP[0].reg = comp0;
+    RTC->MODE1.COMP[1].reg = comp1;
+    RTC->MODE1.INTENSET.reg |= (RTC_MODE1_INTENSET_CMP0 | RTC_MODE1_INTENSET_CMP1);
+    while (RTCisSyncing());
+  }
+}
+
+void RTCZero::enableCounter(unsigned long comp0)
+{
+  if (_configured) {
+    if (rtc_mode==0) {
+      RTC->MODE0.COMP[0].reg = comp0;
+      RTC->MODE0.INTENSET.reg |= RTC_MODE0_INTENSET_CMP0;
+    }
+    else if (rtc_mode==1) {
+      RTC->MODE1.COMP[0].reg = (unsigned int) comp0;
+      RTC->MODE1.INTENSET.reg |= RTC_MODE1_INTENSET_CMP0;
+    }
+    while (RTCisSyncing());
+  }
+}
+
+void RTCZero::disableCounter()
+{
+  if (_configured) {
+    if (rtc_mode==0) RTC->MODE0.INTENCLR.reg |= RTC_MODE0_INTENCLR_CMP0;
+    else if (rtc_mode==1) RTC->MODE1.INTENCLR.reg |= (RTC_MODE1_INTENCLR_CMP0 | RTC_MODE1_INTENCLR_CMP1);
+    while (RTCisSyncing());
+  }
+}
+
+void RTCZero::enableOverflow()
+{
+  if (_configured) {
+    if (rtc_mode==0) RTC->MODE0.INTENSET.reg |= RTC_MODE0_INTENSET_OVF;
+    else if (rtc_mode==1) RTC->MODE1.INTENSET.reg |= RTC_MODE1_INTENSET_OVF;
+    else RTC->MODE2.INTENSET.reg |= RTC_MODE2_INTENSET_OVF;   // mode 2
+    while (RTCisSyncing());
+  }
+}
+
+void RTCZero::disableOverflow()
+{
+  if (_configured) {
+    if (rtc_mode==0) RTC->MODE0.INTENCLR.reg |= RTC_MODE0_INTENCLR_OVF;
+    else if (rtc_mode==1) RTC->MODE1.INTENCLR.reg |= RTC_MODE1_INTENCLR_OVF;
+    else RTC->MODE2.INTENCLR.reg |= RTC_MODE2_INTENCLR_OVF;   // mode 2
+    while (RTCisSyncing());
   }
 }
 
@@ -155,6 +284,51 @@ void RTCZero::standbyMode()
 /*
  * Get Functions
  */
+
+uint8_t RTCZero::getIntSource()
+{
+  RTCreadRequest();
+  if (rtc_mode==0) {
+    if (RTC->MODE0.INTFLAG.bit.CMP0) return INT_COMP0;
+    else if (RTC->MODE0.INTFLAG.bit.OVF) return INT_OVERFLOW;
+  }
+  else if (rtc_mode==1) {
+    if (RTC->MODE1.INTFLAG.bit.CMP0) return INT_COMP0;
+    else if (RTC->MODE1.INTFLAG.bit.CMP1) return INT_COMP1;
+    else if (RTC->MODE1.INTFLAG.bit.OVF) return INT_OVERFLOW;
+  }
+  else { // mode 2
+    if (RTC->MODE2.INTFLAG.bit.ALARM0) return INT_ALARM0;
+    else if (RTC->MODE2.INTFLAG.bit.OVF) return INT_OVERFLOW;
+  }
+  return INT_UNKNOWN;
+}
+
+uint32_t RTCZero::getCount()
+{
+  RTCreadRequest();
+  if (rtc_mode==0) return RTC->MODE0.COUNT.reg;
+  else if (rtc_mode==1) return RTC->MODE1.COUNT.reg;
+  return 0;
+}
+
+uint32_t RTCZero::getCompare()
+{
+  RTCreadRequest();
+  if (rtc_mode==0) return RTC->MODE0.COMP[0].reg;
+  else return 0;
+}
+
+uint16_t RTCZero::getCompare(uint8_t c)
+{
+  RTCreadRequest();
+  if (rtc_mode==1) {
+    if (c==0) return RTC->MODE1.COMP[0].reg;
+    if (c==1) return RTC->MODE1.COMP[1].reg;
+  }
+  return 0;
+}
+
 
 uint8_t RTCZero::getSeconds()
 {
@@ -225,6 +399,33 @@ uint8_t RTCZero::getAlarmYear()
 /*
  * Set Functions
  */
+
+void RTCZero::setCount(uint32_t count)
+{
+  if (_configured && rtc_mode==0) {
+    RTC->MODE0.COUNT.reg = count;
+    while (RTCisSyncing())
+      ;
+  }
+}
+
+void RTCZero::setCount(uint16_t count)
+{
+  if (_configured && rtc_mode==1) {
+    RTC->MODE1.COUNT.reg = count;
+    while (RTCisSyncing())
+      ;
+  }
+}
+
+void RTCZero::setPeriod(uint16_t period)
+{
+  if (_configured && rtc_mode==1) {
+    RTC->MODE1.PER.reg = period;
+    while (RTCisSyncing())
+      ;
+  }
+}
 
 void RTCZero::setSeconds(uint8_t seconds)
 {
@@ -484,7 +685,9 @@ void RTCZero::config32kOSC()
 /* Synchronise the CLOCK register for reading*/
 inline void RTCZero::RTCreadRequest() {
   if (_configured) {
-    RTC->MODE2.READREQ.reg = RTC_READREQ_RREQ;
+    if (rtc_mode==0) RTC->MODE0.READREQ.reg = RTC_READREQ_RREQ;         // set read request bit, Mode 0
+    else if (rtc_mode==1) RTC->MODE1.READREQ.reg = RTC_READREQ_RREQ;    // set read request bit, Mode 1
+    else RTC->MODE2.READREQ.reg = RTC_READREQ_RREQ;                     // set read request bit, Mode 2
     while (RTCisSyncing())
       ;
   }
@@ -493,33 +696,43 @@ inline void RTCZero::RTCreadRequest() {
 /* Wait for sync in write operations */
 inline bool RTCZero::RTCisSyncing()
 {
-  return (RTC->MODE2.STATUS.bit.SYNCBUSY);
+  if (rtc_mode==0) return (RTC->MODE0.STATUS.bit.SYNCBUSY);             // return sync busy bit, Mode 0
+  else if (rtc_mode==1) return (RTC->MODE1.STATUS.bit.SYNCBUSY);        // return sync busy bit, Mode 1
+  else return (RTC->MODE2.STATUS.bit.SYNCBUSY);                         // return sync busy bit, Mode 2
 }
 
 void RTCZero::RTCdisable()
 {
-  RTC->MODE2.CTRL.reg &= ~RTC_MODE2_CTRL_ENABLE; // disable RTC
+  if (rtc_mode==0) RTC->MODE0.CTRL.reg &= ~RTC_MODE0_CTRL_ENABLE;       // disable RTC, Mode 0
+  else if (rtc_mode==1) RTC->MODE1.CTRL.reg &= ~RTC_MODE1_CTRL_ENABLE;  // disable RTC, Mode 1
+  else RTC->MODE2.CTRL.reg &= ~RTC_MODE2_CTRL_ENABLE;                   // disable RTC, Mode 2
   while (RTCisSyncing())
     ;
 }
 
 void RTCZero::RTCenable()
 {
-  RTC->MODE2.CTRL.reg |= RTC_MODE2_CTRL_ENABLE; // enable RTC
+  if (rtc_mode==0) RTC->MODE0.CTRL.reg |= RTC_MODE0_CTRL_ENABLE;        // enable RTC, Mode 0
+  else if (rtc_mode==1) RTC->MODE1.CTRL.reg |= RTC_MODE1_CTRL_ENABLE;   // enable RTC, Mode 1
+  else RTC->MODE2.CTRL.reg |= RTC_MODE2_CTRL_ENABLE;                    // enable RTC, Mode 2
   while (RTCisSyncing())
     ;
 }
 
 void RTCZero::RTCreset()
 {
-  RTC->MODE2.CTRL.reg |= RTC_MODE2_CTRL_SWRST; // software reset
+  if (rtc_mode==0) RTC->MODE0.CTRL.reg |= RTC_MODE0_CTRL_SWRST;         // software reset, Mode 0
+  else if (rtc_mode==1) RTC->MODE1.CTRL.reg |= RTC_MODE1_CTRL_SWRST;    // software reset, Mode 1
+  else RTC->MODE2.CTRL.reg |= RTC_MODE2_CTRL_SWRST;                     // software reset, Mode 2
   while (RTCisSyncing())
     ;
 }
 
 void RTCZero::RTCresetRemove()
 {
-  RTC->MODE2.CTRL.reg &= ~RTC_MODE2_CTRL_SWRST; // software reset remove
+  if (rtc_mode==0) RTC->MODE0.CTRL.reg &= ~RTC_MODE0_CTRL_SWRST;        // software reset remove, Mode 0
+  else if (rtc_mode==1) RTC->MODE1.CTRL.reg &= ~RTC_MODE1_CTRL_SWRST;        // software reset remove, Mode 1
+  else RTC->MODE2.CTRL.reg &= ~RTC_MODE2_CTRL_SWRST;                    // software reset remove, Mode 2
   while (RTCisSyncing())
     ;
 }
