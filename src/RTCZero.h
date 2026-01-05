@@ -39,7 +39,7 @@ public:
   };
 
   RTCZero();
-  void begin(bool resetTime = false);
+  void begin(bool twelveHrsformat = false,bool resetTime = false);
 
   void enableAlarm(Alarm_Match match);
   void disableAlarm();
