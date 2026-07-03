@@ -112,6 +112,8 @@ private:
   void RTCenable();
   void RTCreset();
   void RTCresetRemove();
+  void RTCsetCompileTime();
+  uint8_t monIndex(String monStr);
 };
 
 #endif // RTC_ZERO_H
