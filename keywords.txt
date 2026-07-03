@@ -52,6 +52,19 @@ setAlarmTime	KEYWORD2
 enableAlarm	KEYWORD2
 disableAlarm	KEYWORD2
 
+enableCounter	KEYWORD2
+disableCounter	KEYWORD2
+
+enableOverflow	KEYWORD2
+disableOverflow	KEYWORD2
+
+getIntSource	KEYWORD2
+getCount	KEYWORD2
+getCompare	KEYWORD2
+
+setCount	KEYWORD2
+setPeriod	KEYWORD2
+
 standbyMode	KEYWORD2
 
 #######################################
